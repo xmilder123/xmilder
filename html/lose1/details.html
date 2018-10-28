@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<!--<meta charset="UTF-8">
+		<title>失物详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">-->
+<!--		<link rel="stylesheet" type="text/css" href="../../css/ui-box.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/style.css" />-->
+		 <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>失物详情</title>
+		<link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+	</head>
+
+	<body>
+                <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn" tapmode onclick="closeWin()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">失物详情</div>
+    </header>
+
+                	<section class="aui-content">
+				<ul id="booklist_area" class="aui-list aui-list-in">
+					<script id="booklist_tmp" type="text/x-dot-template">
+						{{~ it : value : index }}
+							<li class="aui-list-item" >
+									<div class="aui-card-list">
+				        		<div class="aui-card-list-content">
+				            		<img src="{{= value.picture.url}}" />
+						        </div>
+					    		</div>
+			    		</li>
+    						<li class="aui-list-item" >
+					        <!--<li class="aui-list-item" >-->
+					            <div class="aui-list-item-inner">
+
+									<div class="name">失物时间</div>
+										<div class="ub-f1">{{= value.updatedAt}}</div>
+									</div>
+
+							</li>
+							<li class="aui-list-item">
+									<div class="aui-list-item-inner">
+										<div class="name">失物特征</div>
+										<div class="ub-f1">{{= value.type}}</div>
+									</div>
+					            </div>
+					        </li>
+    						<li class="aui-list-item" >
+					        <!--<li class="aui-list-item" >-->
+					            <div class="aui-list-item-inner">
+
+									<div class="name">失物详情</div>
+										<div class="ub-f1">{{= value.information}}</div>
+									</div>
+
+							</li>
+
+		                {{~}}
+	                </script>
+                </ul>
+                </section>
+
+
+<!-- <li class="aui-list-item">
+            <div class="aui-list-item-inner">
+                <label><input class="aui-radio" type="radio" name="radio" checked> 这是一个列表项</label>
+            </div>
+        </li>
+        <li class="aui-list-item">
+            <div class="aui-list-item-inner">
+                <label><input class="aui-radio" disabled type="radio" name="radio"> 这是一个列表项</label>
+            </div>
+        </li>-->
+
+
+
+
+			</div>
+		<!--</div>-->
+		<div class="details-f">
+			温情提示：认领者须携带本人身份证或学生证进行登记，核实无误后返还并签字确认。每件失物的公示时间为7天，失物的认领时间为上午9:00-下午21:00。
+		</div>
+	</body>
+	<script type="text/javascript" src="../../script/TouchSlide.1.1.js"></script>
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/doT.js"></script>
+	<script type="text/javascript" src="../../script/aui-toast.js"></script>
+	<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+	<script type="text/javascript" src="../../script/m2m.js"></script>
+	<script type="text/javascript" src="../../script/account.js"></script>
+	<script>
+//	apiready = function() {
+//		information=api["pageParam"]["name"];
+//		alert(information);
+//      api.parseTapmode();
+//      query = api.require('query');
+//      model = api.require('model');
+//
+//
+//  };
+		TouchSlide({
+					slideCell:"#slideBox",
+					titCell:".hd ul", //开启自动分页 autoPage:true ，此时设置 titCell 为导航元素包裹层
+					mainCell:".bd ul",
+					effect:"leftLoop",
+					autoPage:true,//自动分页
+					autoPlay:true //自动播放
+				});
+	   function vbooklist(bk_text) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+//              query.whereStartWith({
+//                  qid: queryId,
+//                  column: 'school',
+//                  value: schoolinfo.id
+//              });
+//              query.whereEqual({
+//                  qid: queryId,
+//                  column: "public",
+//                  value: true
+//              });
+                if(api["pageParam"]["name"]!=undefined){
+                  alert(api["pageParam"]["name"]);
+                  query.whereEqual({
+                      qid: queryId,
+                      column: "information",
+                      value: api["pageParam"]["name"]
+                  });
+                }
+
+                // query.whereLike({
+                //     qid: queryId,
+                //     column: 'name',
+                //     value: bk_text
+                // });
+//              query.limit({
+//                  qid: queryId,
+//                  value: 100
+//              });
+//              query.desc({
+//                  qid: queryId,
+//                  column: 'updatedAt'
+//              });
+                // query.justFields({
+                //     qid: queryId,
+                //     value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'bookfind']
+                // });
+                model.findAll({
+                    class: "studatumlose",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        var templateText = $api.byId('booklist_tmp').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId("booklist_area").innerHTML = dot(data);
+                        //$api.byId('list').innerHTML = dot(res);
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+	var query;
+    var model;
+	 apiready = function() {
+        api.parseTapmode();
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        if (logined == 'true') {
+            vbooklist('bk_text');
+
+            // $api.byId('newbooklist').innerHTML = schoolinfo.name + '搜索结果';
+            //search_dialog();
+        }
+    };
+	</script>
+
+</html>

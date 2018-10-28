@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-success" tapmode onclick="openScan1()">Step1.扫描书柜二维码</div>
+            </div>
+            <div id="boxstate" class="aui-card-list-footer">
+                无书柜信息
+            </div>
+        </div>
+    </section>
+    <section class="aui-content">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-header">
+                当前书柜中书籍列表
+            </li>
+        </ul>
+        <ul id="booklist_area" class="aui-list aui-list-in">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li id='{{= value.id}}' class="aui-list-item" tapmode onclick="openBookInfo('{{= value.id}}','{{= value.bid}}','{{= value.name}}','{{= value.price}}','{{= value.isbn}}','{{= value.bookbox}}',{{= value.subbox}},{{= value.seated}},'{{= value.bookfind}}')">
+                    <div class="aui-list-item-inner  aui-list-item-arrow">
+                        <div class="aui-list-item-title">{{= value.name}} ¥{{= value.price}}</div>
+                        <div class="aui-list-item-right">详细</div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </section>
+
+
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var FNScanner;
+    // var socketManager;
+    // var socket_sid;
+    //var bookbox_id = $api.byId('bookbox_id');
+    //var book_id = $api.byId('book_id');
+    //var book_info = $api.byId('book_info');
+
+    var CurrentBox; //书柜名称 hyit003
+    var CurrentSubBox; //集群书柜序号 0 1 2 。。。
+    // var OnetNet_devID; //onenet 接入设备地址
+    // var OnetNet_LoraID; //无线设备地址
+
+    // var bkid;
+    // var book_name;
+    // var book_isbn;
+    // var account;
+
+    function openBookInfo(id, bid, name, price, isbn, bookbox, subbox, seated, bookfind) {
+        var book = {};
+        book.action = "takeoutbook";
+        book.id = id;
+        book.bid = bid;
+        book.name = name;
+        book.price = price;
+        book.isbn = isbn;
+        book.bookbox = bookbox;
+        book.subbox = subbox;
+        book.seated = seated;
+        book.bookfind = bookfind;
+
+        api.openWin({
+            name: 'bookinfo',
+            url: '../bookinfo/bookinfo.html',
+            pageParam: book,
+            bounces: false,
+            opaque: false
+        });
+    }
+
+    function openScan1() {
+        //var toast = new auiToast();
+        FNScanner.openScanner({
+            autorotation: true
+        }, function(ret, err) {
+            if (ret.eventType == "success") {
+                Request = GetRequest(ret.content);
+                CurrentBox = Request['id'];
+                CurrentSubBox = 1; //Request['sub'];
+                if (bboxListjson(CurrentBox)) {
+                    OneNet_Dev_Online(CurrentBox, function(ret2) {
+                        var boxstate = $api.byId('boxstate');
+                        if (ret2) {
+                            $api.html(boxstate, CurrentBoxDescribe + '<div class="aui-text-success">[在线]</div>');
+                            //bookbox_id.innerHTML = CurrentBoxDescribe + '<div class="aui-text-success">[在线]</div>';
+                        } else {
+                            //bookbox_id.innerHTML = CurrentBoxDescribe + '<div class="aui-text-danger">[掉线]</div>';
+                            $api.html(boxstate, CurrentBoxDescribe + '<div class="aui-text-danger">[掉线]</div>');
+                            api.alert({
+                                title: 'SORRY',
+                                msg: '该书柜出现异常，请稍后再试试。',
+                            }, function(ret2, err2) {
+                                if (ret2) {
+                                    closeWin();
+                                }
+                            });
+                        }
+                    });
+                    CurrentSubBox_booklist();
+                } else {
+                    alert('该二维码有误！');
+                }
+            } else {
+                $api.html($api.byId('boxstate'), '扫描失败，亲重新扫描');
+            }
+
+        });
+    }
+
+    function CurrentSubBox_booklist() {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereEqual({
+                    qid: queryId,
+                    column: "bookbox",
+                    value: CurrentBox
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "subbox",
+                    value: CurrentSubBox
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "inbox",
+                    value: true
+                });
+                // query.limit({
+                //     qid: queryId,
+                //     value: 300
+                // });
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'subbox', 'seated', 'bookfind']
+                });
+                model.findAll({
+                    class: "book",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        var templateText = $api.html($api.byId('booklist_tmp'));
+                        var dot = doT.template(templateText);
+                        $api.html($api.byId("booklist_area"), dot(data));
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    function Taked_Book_Del(id) {
+        //console.log(id);
+        $api.byId('booklist_area').removeChild($api.byId(id));
+    }
+
+    var query;
+    var model;
+    apiready = function() {
+        api.parseTapmode();
+        FNScanner = api.require('FNScanner');
+        //socketManager = api.require('socketManager');
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        // if (logined == 'true') {
+        //     account = userinfo.name;
+        //     //school = schoolinfo;
+        // }
+
+    };
+</script>
+
+</html>

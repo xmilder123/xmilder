@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>会话</title>
+        <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    </head>
+    <style type="text/css">
+
+    </style>
+
+    <body>
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list aui-media-list" id="friendsList">
+                <p class="aui-text-center" id="noFriends">暂无好友</p>
+            </ul>
+        </div>
+    </body>
+    <script type="text/template" id="template">
+        {{~it:value:index}} {{? value.avatar}}
+        <li class="aui-list-item aui-list-item-middle" tapmode onclick="openChat('{{=value.id}}');">
+            <div class="aui-media-list-item-inner">
+                <div class="aui-list-item-media" style="width: 3rem;">
+                    <img class="aui-img-round aui-list-img-sm" src="{{=value.avatar.url}}" id="avatar-{{=value.id}}">
+                </div>
+                <div class="aui-list-item-inner">
+                    <span id="username-{{=value.id}}">{{=value.username}}</span>
+                </div>
+            </div>
+        </li>
+        {{??}}
+        <li class="aui-list-item aui-list-item-middle" tapmode onclick="openChat('{{=value.id}}');">
+            <div class="aui-media-list-item-inner">
+                <div class="aui-list-item-media" style="width: 3rem;">
+                    <img class="aui-img-round aui-list-img-sm" src="../image/profile_default.png" id="avatar-{{=value.id}}">
+                </div>
+                <div class="aui-list-item-inner">
+                    <span id="username-{{=value.id}}">{{=value.username}}</span>
+                </div>
+            </div>
+        </li>
+        {{?}} {{~}}
+    </script>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/SHA1.js"></script>
+    <script type="text/javascript" src="../../script/doT.js"></script>
+    <script type="text/javascript">
+        var page = 1,
+            skipnumber,
+            loadLock = false;
+        var now = Date.now();
+        var appKey = SHA1("A6933358370367" + "UZ" + "005400FF-1E5B-90D8-32A0-341A295C0D12" + "UZ" + now) + "." + now;
+        apiready = function() {
+            api.showProgress({
+                style: 'default',
+                animationType: 'fade',
+                title: '加载中',
+                text: '请稍候',
+                modal: false
+            });
+            api.parseTapmode();
+            getData();
+            api.hideProgress();
+            fnInitEventListenner();
+        }
+
+        function fnInitEventListenner() {
+            api.addEventListener({
+                name: 'scrolltobottom',
+                extra: {
+                    threshold: 200
+                }
+            }, function(ret, err) {
+            	loadLock = true;
+                getData(loadLock);
+            });
+        }
+
+        function getData(loadLock) {
+            var userInfo = $api.getStorage('userInfo');
+            var params = {
+                fields: {},
+                where: {
+                    id: {
+                        ne: userInfo.userId
+                    }
+                },
+                skip: skipnumber,
+                limit: 10,
+            }
+            skipnumber+=10;
+            params = $api.jsonToStr(params);
+            api.ajax({
+                url: 'https://d.apicloud.com/mcm/api/user?filter=' + params,
+                method: 'get',
+                headers: {
+                    "X-APICloud-AppId": "A6933358370367",
+                    "X-APICloud-AppKey": appKey,
+                },
+            }, function(ret, err) {
+                if (ret) {
+                    if ($api.byId("noFriends")) {
+                        $api.remove($api.byId("noFriends"));
+                    }
+                    fnUpdateList(ret, loadLock);
+                page++;
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }
+        /**
+         *打开会话窗口
+         *传入目标id，及会话类型
+         */
+        // function openChat(targetId) {
+        //     //当前正在会话的targetId
+        //     targetIdIng = targetId;
+        //     var targetAvatar = $api.attr($api.byId("avatar-" + targetId), 'src');
+        //     var targetUsername = $api.text($api.byId('username-' + targetId));
+        //     api.openWin({
+        //         name: 'chat_win',
+        //         url: 'chat_win.html',
+        //         delay: 300,
+        //         pageParam: {
+        //             targetId: targetId,
+        //             targetAvatar: targetAvatar,
+        //             targetUsername: targetUsername
+        //         }
+        //     })
+        // }
+
+        //显示所有用户
+        function fnUpdateList(data_, loadLock) {
+            var list = $api.byId('friendsList');
+            // 1. 编译模板函数
+            var tempFn = doT.template($api.byId('template').innerHTML);
+            // 2. 多次使用模板函数
+            var resultText = tempFn(data_);
+            api.parseTapmode();
+            if (loadLock) {
+            $api.append(list, resultText);
+            loadLock=false;
+        	}else{
+        		alert("没有啦");
+        	}
+        }
+    </script>
+
+</html>

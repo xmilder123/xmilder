@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>设置</title>
+        <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+        <style type="text/css">
+        </style>
+    </head>
+
+    <body>
+        <header class="aui-bar aui-bar-nav" id="aui-header">
+            <a class="aui-btn aui-pull-left" tapmode onclick="api.closeWin();">
+                <span class="aui-iconfont aui-icon-left"></span>
+            </a>
+            <div class="aui-title">设置</div>
+        </header>
+        <div class="aui-content aui-margin-15">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">清除缓存</div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">检查更新</div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle" tapmode onclick="openSharebox()">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">推荐好友</div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">关于我们</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <footer>
+            <div>
+            <div class="aui-col-xs-2">
+                &nbsp;
+            </div>
+            <div class="aui-col-xs-8">
+                <div class="aui-btn aui-btn-danger aui-btn-block">退出登录</div>
+            </div>
+            </div>
+        </footer>
+    </body>
+<script type="text/javascript" src="../script/api.js" ></script>
+<script type="text/javascript" src="../script/aui-sharebox.js" ></script>
+<script type="text/javascript">
+    apiready = function(){
+        api.parseTapmode();
+    }
+    var sharebox = new auiSharebox();
+    function openSharebox(){
+        sharebox.init({
+            frameBounces:true,//当前页面是否弹动，（主要针对安卓端）
+            buttons:[{
+                image:'../image/share/wx.png',
+                text:'微信',
+                value:'wx'//可选
+            },{
+                image:'../image/share/wx-circle.png',
+                text:'朋友圈',
+                value:'wx-circle'
+            },{
+                image:'../image/share/qq.png',
+                text:'QQ好友',
+                value:'qq'
+            },{
+                image:'../image/share/qzone.png',
+                text:'QQ空间',
+                value:'qq-qzone'
+            },{
+                image:'../image/share/qq-weibo.png',
+                text:'QQ微博'
+            },{
+                image:'../image/share/sina-weibo.png',
+                text:'新浪微博'
+            },{
+                image:'../image/share/message.png',
+                text:'短信'
+            }],
+            col:5,
+            cancelTitle:'关闭'//可选,当然也可以采用下面的方式使用图标
+            // cancelTitle:'<i class="aui-iconfont aui-icon-close aui-font-size-16"></i>'//可选
+        },function(ret){
+            if(ret){
+                alert( JSON.stringify( ret ) );
+            }
+        })
+    }
+</script>
+
+</html>

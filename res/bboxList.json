@@ -1,0 +1,47 @@
+{
+    "hyit001": {
+        "devid": "5998795",
+        "describe": "淮工1号柜（样机）",
+        "lora_addr": 11
+    },
+    "hyit002": {
+        "devid": "5998795",
+        "describe": "淮工2号柜（图书馆大厅）",
+        "lora_addr": 13
+    },
+    "hyit003": {
+        "devid": "5998795",
+        "describe": "淮工3号柜（北园14号楼1楼）",
+        "lora_addr": 12
+    },
+    "hyit004": {
+        "devid": "5998795",
+        "describe": "淮工4号柜（开发人员专用）",
+        "lora_addr": 10
+    },
+    "hyit005": {
+        "devid": "5998795",
+        "describe": "淮工5号柜（北园12号楼1楼教材库）",
+        "lora_addr": 14
+    },
+    "hyit006": {
+        "devid": "5998795",
+        "describe": "淮工6号柜（逸夫楼1楼）",
+        "lora_addr": 15
+    },
+    "hyit007": {
+        "devid": "5998795",
+        "describe": "淮工7号柜（南园21号楼1楼）",
+        "lora_addr": 16
+    },
+    "hyit008": {
+        "devid": "5998795",
+        "describe": "淮工8号柜（南园22号楼1楼）",
+        "lora_addr": 17
+    },
+    "hzxh001": {
+        "devid": "5916267",
+        "describe": "淮工0号柜（展示书柜）",
+        "lora_addr": 10
+    }
+}

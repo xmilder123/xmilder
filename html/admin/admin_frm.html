@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <!-- <div class="aui-card-list-header">
+                扫书柜二维码，获取书柜信息
+            </div> -->
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-block aui-btn-sm aui-btn-success" tapmode onclick="openScan1()">扫描书柜二维码</div>
+            </div>
+            <div id="bookbox_id" class="aui-card-list-footer">
+                无书柜信息
+            </div>
+        </div>
+
+    </section>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">书柜信息</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        柜组编号
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" id="H_box">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        子柜编号
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" id="H_sbox">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        柜门号
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" id="H_door">
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <p>
+        <div class="aui-btn aui-btn-danger aui-btn-block aui-btn-sm" tapmode onclick="printTap_openDoor()">打开柜门</div>
+    </p>
+    </section>
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">书柜定位</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        经度==
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" id="X_box">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        纬度==
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" id="Y_box">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        地址==
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" id="addr">
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <p>
+        <div class="aui-btn aui-btn-danger aui-btn-block aui-btn-sm" tapmode onclick="box_location()">定位</div>
+    </p>
+    </br>
+    <p>
+        <div class="aui-btn aui-btn-danger aui-btn-block aui-btn-sm" tapmode onclick="box_location_update()">位置更新</div>
+    </p>
+    <!-- <p class="aui-font-size-14 aui-text-success">标签打印后请贴在书的封一位置</p> -->
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<!-- <script type="text/javascript" src="../../script/doT.js"></script> -->
+<!-- <script type="text/javascript" src="./js/gen_7bookid.js"></script> -->
+<!-- <script type="text/javascript" src="../../script/aui-toast.js"></script> -->
+<!-- <script type="text/javascript" src="../../script/aui-dialog.js"></script> -->
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var FNScanner;
+    var bookbox_id = $api.byId('bookbox_id');
+    // var book_id = $api.byId('book_id');
+    //var book_info = $api.byId('book_info');
+
+    var CurrentBox; //书柜名称 hyit003
+    var CurrentSubBox; //集群书柜序号 0 1 2 。。。
+
+    // var bkid;
+    // var book_name;
+    // var book_isbn;
+    var seated; //门的编号
+    // var set_price = '-1';
+    // var account = $api.getStorage('user');
+    // var school = $api.getStorage('school');
+
+    // var dialog = new auiDialog();
+    // var judge = false; //判断书籍信息获取状态。
+    // var Scan_Book_Array = new Array(); //扫描入柜的书籍数组
+    var loc = {}; //坐标
+    var Current_devID
+
+    function openScan1() {
+        //var toast = new auiToast();
+        var Request = new Object();
+        FNScanner.openScanner({
+            autorotation: true
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret) + JSON.stringify(err));
+            if (ret.eventType == "success") {
+                Request = GetRequest(ret.content);
+                Current_devID = Request['id'];
+                CurrentBox = Request['id'];
+                CurrentSubBox = 1;
+                if (Current_devID != null) {
+                    bboxListjson(CurrentBox);
+                    OneNet_Dev_Online(Current_devID, function(ret2) {
+                        if (ret2) {
+                            bookbox_id.innerHTML = CurrentBoxDescribe + '<div class="aui-text-success">[在线]</div>';
+                        } else {
+                            bookbox_id.innerHTML = CurrentBoxDescribe + '<div class="aui-text-danger">[掉线]</div>';
+                        }
+                    });
+                    //根据CurrentBox和CurrentSubBox确定书柜的价格范围
+                    //Display_price(CurrentBox, CurrentSubBox);
+                    $api.byId('H_box').value = CurrentBox;
+                    $api.byId('H_sbox').value = CurrentSubBox;
+                } else {
+                    api.alert({
+                        msg: '该二维码有误，无书柜信息！'
+                    });
+                }
+            }
+        });
+    }
+
+    function printTap_openDoor() {
+        //var price = $api.byId('list_price').value; //得到用户定义的价格
+
+        seated = $api.byId('H_door').value;
+        OneNet_Dev_command(Current_devID, function(command) {
+            if (command) {
+                //更新入库书籍数据库
+                //Book_data_into_db();
+                api.alert({
+                    title: '控制',
+                    msg: '柜门已经打开！',
+                }, function(ret, err) {
+
+                });
+                // dialog.alert({
+                //     title: "放书",
+                //     msg: '柜门已经打开！',
+                //     buttons: ['确定']
+                // }, function(ret3) {
+                //     //closeWin();
+                // });
+            }
+        });
+    }
+
+    function box_location() {
+        var aMapLBS = api.require('aMapLBS');
+        aMapLBS.configManager({
+            accuracy: 'tenMeters',
+            filter: 1
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret)); //{"status":true}
+
+            if (ret.status) {
+                console.log('定位管理器初始化成功！');
+                aMapLBS.singleLocation({
+                    timeout: 10
+                }, function(ret2, err2) {
+                    console.log(JSON.stringify(ret2)); //{"status":true,"lon":119.033942,"lat":33.551471,"altitude":0}
+
+                    if (ret.status) {
+                        console.log('获取位置成功！');
+                        $api.byId('X_box').value = ret2.lon;
+                        $api.byId('Y_box').value = ret2.lat;
+                        //,"gps":{"lat":"39.1326317","lng":"117.2111388"}
+                        loc.lat = ret2.lon;
+                        loc.lng = ret2.lat;
+                        aMapLBS.singleAddress({
+                            timeout: 10
+                        }, function(ret3, err3) {
+                            if (ret.status) {
+                                alert(JSON.stringify(ret3));
+                                $api.byId('addr').value = ret3.address.formattedAddress;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function box_location_update() {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereEqual({
+                    qid: queryId,
+                    column: "name",
+                    value: CurrentBox
+                });
+                model.findAll({
+                    class: "bookbox",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        model.updateById({
+                            class: 'bookbox',
+                            id: data[0].id,
+                            value: {
+                                gps: loc
+                            }
+                        }, function(ret, err) {
+                            if (ret) {
+                                console.log(JSON.stringify(ret));
+                                alert('位置误差' + getDisance(data[0].gps.lat, data[0].gps.lng, ret.gps.lat, ret.gps.lng) + '米');
+                            } else {
+                                console.log(JSON.stringify(err));
+                            }
+                        });
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    function toRad(d) {
+        return d * Math.PI / 180;
+    }
+    //#lat为纬度, lng为经度, 一定不要弄错
+    function getDisance(lat1, lng1, lat2, lng2) {
+        var dis = 0;
+        var radLat1 = toRad(lat1);
+        var radLat2 = toRad(lat2);
+        var deltaLat = radLat1 - radLat2;
+        var deltaLng = toRad(lng1) - toRad(lng2);
+        var dis = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(deltaLng / 2), 2)));
+        return dis * 6378137;
+    }
+
+    // alert(getDisance(39.91917, 116.3896, 39.91726, 116.3940));
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        FNScanner = api.require('FNScanner');
+        //socketManager = api.require('socketManager');
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+    };
+
+    function closeWin() {
+        api.closeWin({});
+    }
+</script>
+
+</html>

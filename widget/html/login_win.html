@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+        <style type="text/css">
+            body {
+                text-align: center;
+            }
+
+            .btn-third-party {
+                display: inline-block;
+                width: auto;
+                height: 50px;
+                box-sizing: border-box;
+                margin-left: auto;
+                margin-right: auto;
+                padding: 8px 8px 8px 36px;
+                font-size: 20px;
+                color: #888;
+                line-height: 32px;
+                text-align: left;
+                border: 1px solid #aaa;
+                background-image: url();
+                background-repeat: no-repeat;
+                background-size: auto 28px;
+                background-position: 8px center;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header class="aui-bar aui-bar-nav" id="aui-header">用户登录</header>
+        <div class="aui-content-padded aui-margin-b-15 aui-font-size-20">
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-header">快速登录</li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-mobile"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input id='account' type="text" placeholder="请输入用户名">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-lock"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input id='password' type="password" placeholder="请输入密码">
+                        </div>
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-display"></i>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                        <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="login()">提交</div>
+                        <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="closeWin()">取消</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <section class="aui-grid aui-margin-b-5">
+            <div class="aui-row">
+                <div class="aui-col-xs-6">
+                    <i class="aui-iconfont aui-icon-gear"></i>
+                    <div class="aui-grid-label">忘记密码</div>
+                </div>
+                <div class="aui-col-xs-6" tapmode onclick="openNewWindow('reg','regform_win')">
+                    <i class="aui-iconfont aui-icon-date"></i>
+                    <div class="aui-grid-label">注册帐号</div>
+                </div>
+            </div>
+        </section>
+        <div class="btn-third-party">
+            使用QQ登录
+        </div>
+    </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript">
+    </script>
+
+</html>

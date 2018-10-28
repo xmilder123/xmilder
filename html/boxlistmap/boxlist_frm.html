@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style type="text/css">
+        .goods-title {
+            color: #757575 !important;
+        }
+
+        .goods-price {
+            color: #666666 !important;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div class="aui-tips aui-bg-warning aui-margin-b-15" id="tips-1">
+        <i class="aui-iconfont aui-icon-info"></i>
+        <div class="aui-tips-title">消息提示条消息提示条消息提示</div>
+        <i class="aui-iconfont aui-icon-close" tapmode="" onclick="closeTips()"></i>
+    </div> -->
+    <section id="boxlist_area" class="aui-content">
+        <script id="boxlist_tmp" type="text/x-dot-template">
+            {{~ it : value : index }}
+            <div id="{{= value.name}}" class="aui-card-list aui-border-t aui-border-b">
+                <div class="aui-card-list-header aui-card-list-user">
+                    <div class="aui-card-list-user-avatar">
+                        <img src="../../image/bookbox.png">
+                    </div>
+                    <div class="aui-card-list-user-name">
+                        <div class="aui-font-size-16">{{= value.describe}} <i class="aui-iconfont aui-icon-right aui-font-size-12"></i></div>
+                        <small>{{= value.state}}</small>
+                    </div>
+                    <div class="aui-card-list-user-info">{{= value.address}}</div>
+                </div>
+                <div class="aui-card-list-content aui-border-t" style="margin-left: 3.5rem;">
+                    <ul class="aui-list aui-list-noborder">
+                        <div class="aui-list-item aui-padded-l-0">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-14 goods-title">现有图书</div>
+                                <div class="aui-list-item-right goods-price">55</div>
+                            </div>
+                        </div>
+                        <div class="aui-list-item aui-padded-l-0">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title aui-font-size-14 goods-title">取出图书</div>
+                                <div class="aui-list-item-right goods-price">5</div>
+                            </div>
+                        </div>
+                    </ul>
+                </div>
+                <div class="aui-card-list-footer aui-border-t">
+                    <div></div>
+                    <div>
+                        <div class="aui-btn aui-btn aui-btn-outlined aui-btn-info aui-margin-r-10">图书列表</div>
+                        <div class="aui-btn aui-btn aui-btn-outlined aui-btn-warning" tapmode onclick="openNewWindow('agaodemap','./agaodemap')">地图位置</div>
+                    </div>
+                </div>
+            </div>
+            {{~}}
+        </script>
+
+    </section>
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var query;
+    var model;
+    apiready = function() {
+        api.parseTapmode();
+        var go = api.pageParam;
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        CurrentBoxlist(schoolinfo.id, function(ret) {
+            if (ret) {
+                if (go.to) {
+                    location.hash = '#' + go.to;
+                }
+            }
+        });
+        //location.href = "#firstAnchor";      // firstAnchor为锚点名称
+        // location.hash = "#hyit004"; // firstAnchor为锚点名称
+
+    };
+
+    function CurrentBoxlist(school_idd, callback) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereEqual({
+                    qid: queryId,
+                    column: "school_idd",
+                    value: school_idd
+                });
+                // query.justFields({
+                //     qid: queryId,
+                //     value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'subbox', 'seated', 'bookfind']
+                // });
+                model.findAll({
+                    class: "bookbox",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        var templateText = $api.byId('boxlist_tmp').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId("boxlist_area").innerHTML = dot(data);
+                        return callback(true);
+                    } else {
+                        //alert(JSON.stringify(error));
+                        return callback(false);
+                    }
+                });
+            }
+        });
+    }
+
+    // function bboxListjson(curr_box) {
+    //     var data = api.readFile({
+    //         sync: true,
+    //         path: 'widget://res/bboxList.json'
+    //     });
+    //     var bboxList_json = JSON.parse(data);
+    //     if (bboxList_json[curr_box]) {
+    //         OnetNet_devID = bboxList_json[curr_box]['devid'];
+    //         OnetNet_LoraID = bboxList_json[curr_box]['lora_addr'];
+    //         CurrentBoxDescribe = bboxList_json[curr_box]['describe'];
+    //         return 1;
+    //     } else {
+    //         return 0;
+    //     }
+    // }
+</script>
+
+</html>

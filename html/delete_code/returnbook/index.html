@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+    body {}
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">将书重新放入书柜</div>
+    </header>
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <div class="aui-card-list-header">
+                1、扫一扫书柜二维码，获取书柜信息
+            </div>
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-success" tapmode onclick="openScan1()">扫描书柜二维码</div>
+            </div>
+            <div id="bookbox_id" class="aui-card-list-footer">
+                无书柜信息
+            </div>
+        </div>
+    </section>
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <div class="aui-card-list-header">
+                2、扫一扫书封一编号条形码(不是ISBN码)
+            </div>
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-success" tapmode onclick="openScan2()">扫描书籍编号条形码</div>
+            </div>
+            <div id="book_info" class="aui-card-list-footer">
+                暂无该书信息
+            </div>
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title">
+                            定价：
+                        </div>
+                        <div class="aui-list-item-input">
+                            <select id="price" onchange="checkField(this.value)">
+                                <option value="15">15元</option>
+                                <option value="20" selected="selected">20元</option>
+                                <option value="25">25元</option>
+                            </select>
+                        </div>
+                        <div class="aui-list-item-title">
+                            重新定价尽量不要超过你买入价格。
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <p>
+                <div class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="openDoor()">打开柜门</div>
+            </p>
+            <p></p>
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript">
+var FNScanner;
+var socketManager;
+var socket_sid;
+var bookbox_id = $api.byId('bookbox_id');
+var book_id = $api.byId('book_id');
+var book_info = $api.byId('book_info');
+
+var bookoid;
+var locate;
+var bkid;
+var book_name;
+var book_isbn;
+var seated;
+var account = $api.getStorage('user');
+
+
+var dialog = new auiDialog();
+
+function checkField(bookrmb) {
+    //alert(bookrmb);
+}
+
+function openScan1() {
+    var toast = new auiToast();
+    FNScanner.openScanner({
+        autorotation: true
+    }, function(ret, err) {
+        if (ret) {
+            //alert(JSON.stringify(ret));
+            if (ret.content) {
+                var data = api.readFile({
+                    sync: true,
+                    path: 'widget://res/bboxList.json'
+                });
+                var bboxList_json = JSON.parse(data);
+
+                if (bboxList_json[ret['content']]) {
+                    locate = ret['content'];
+                    createSocket(function(stat, error) {
+                        if (stat) {
+                            toast.success({
+                                title: "书柜连接正常！",
+                                duration: 2000
+                            });
+                            bookbox_id.innerHTML = bboxList_json[ret['content']] + stat;
+                        } else {
+                            bookbox_id.innerHTML = bboxList_json[ret['content']] + error;
+                        }
+                    });
+                } else {
+                    alert('该二维码有误！');
+                }
+            }
+        } else {
+            bookbox_id.innerHTML = '扫描失败，亲重新扫描';
+        }
+    });
+}
+
+function openScan2() {
+
+    FNScanner.openScanner({
+        autorotation: true
+    }, function(ret, err) {
+        if (ret) {
+            if (ret.content) {
+                bkid = ret['content'];
+
+                query.createQuery(function(ret, err) {
+                    if (ret && ret.qid) {
+                        var queryId = ret.qid;
+
+                        query.whereEqual({
+                            qid: queryId,
+                            column: "bid",
+                            value: bkid
+                        });
+
+                        query.justFields({
+                            qid: queryId,
+                            value: ['id', 'name', 'price']
+                        });
+
+                        model.findAll({
+                            class: "book",
+                            qid: queryId
+                        }, function(data, err) {
+
+                            if (data) {
+                                //alert(JSON.stringify(data));
+                                bookoid = data[0]['id'];
+                                book_name = data[0]['name'];
+                                book_info.innerHTML = '这是你花了' + data[0]['price'] + '元取出的《' + book_name + '》';
+                            } else {
+                                alert(JSON.stringify(error));
+                            }
+                        });
+                    }
+                });
+            }
+        } else {
+            bookbox_id.innerHTML = '扫描失败，请重新扫描';
+        }
+    });
+}
+
+function getJsonObjLength(jsonObj) {
+    var Length = 0;
+    for (var item in jsonObj) {
+        Length++;
+    }
+    return Length;
+}
+
+function openDoor() {
+
+    var price = $api.byId('price').value;
+    if (socket_sid) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+
+                query.whereEqual({
+                    qid: queryId,
+                    column: "idd",
+                    value: locate
+                });
+
+                query.justFields({
+                    qid: queryId,
+                    value: ['pricebox']
+                });
+
+                model.findAll({
+                    class: "bookbox",
+                    qid: queryId
+                }, function(data, error) {
+
+                    var seated_random = Math.floor(Math.random() * getJsonObjLength(data[0].pricebox[price])); //获得对应价格的要打开的柜子号码
+
+                    seated = data[0].pricebox[price][seated_random];
+                    //alert(seated);
+
+                    model.updateById({
+                        class: 'book',
+                        id: bookoid,
+                        value: {
+                            price: price,
+                            bookbox: locate,
+                            seated: seated,
+                            inbox: true
+                        }
+                    }, function(ret2, err2) {
+                        if (!err2) {
+                            //alert(JSON.stringify(ret2));
+                            writeSocket('{"T":1,"I":"' + locate + '","P":{"LO":' + seated + '}}', function(stat) {
+                                if (stat == 1) {
+                                    dialog.alert({
+                                        title: "还书入柜",
+                                        msg: '1.将书放入打开的书柜中 2.学弟学妹感谢你的再次共享! ',
+                                        buttons: ['确定']
+                                    }, function(ret3) {
+                                        model.insert({
+                                            class: 'bookline',
+                                            value: {
+                                                bid: bkid,
+                                                user: account,
+                                                name: book_name,
+                                                price: price,
+                                                act: '归还'
+                                            }
+                                        }, function(ret4, err4) {
+                                            if (!err4) {
+                                                closeSocket(function() {
+                                                    closeWin();
+                                                });
+                                            } else {
+                                                alert(JSON.stringify(err4));
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    alert('网络连接错误');
+                                }
+                            });
+
+                        } else {
+                            alert(JSON.stringify(err2));
+                        }
+                    });
+                });
+            }
+        });
+    } else {
+        alert('网络故障');
+    }
+}
+//https://github.com/jobbole/awesome-python-cn
+
+//CoAP协议共有4中不同的消息类型。
+//CON——需要被确认的请求，如果CON请求被发送，那么对方必须做出响应。
+//NON——不需要被确认的请求，如果NON请求被发送，那么对方不必做出回应。
+//ACK——应答消息，如果接受到CON消息的响应。
+//RST——复位消息，当接收者接受到的消息包含一个错误，接受者解析消息或者不再关心发送者发送的内容，那么复位消息将会被发送。
+//{"T":1,"I":"hyit003","P":{"LO":1,"PI":"bookid","PT":"XXX"}} 打印
+//{"T":2,"I":"hyit003"} 测试
+
+var query;
+var model;
+
+apiready = function() {
+    api.parseTapmode();
+    var header = $api.byId('header');
+    $api.fixStatusBar(header);
+    FNScanner = api.require('FNScanner');
+    socketManager = api.require('socketManager');
+    query = api.require('query');
+    model = api.require('model');
+};
+
+function closeWin() {
+    api.closeWin({});
+}
+</script>
+
+</html>

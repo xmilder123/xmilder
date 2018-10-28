@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <section class="aui-content">
+        <ul id="search_out" class="aui-list aui-list-in">
+            <!-- <p>
+                <div class="aui-btn aui-btn-primary aui-btn-block aui-btn-outlined aui-btn-sm" tapmode onclick="search_dialog()">按书名搜搜</div>
+            </p> -->
+            <li id="newbooklist" class="aui-list-header">
+                书籍列表
+            </li>
+        </ul>
+        <ul id="booklist_area" class="aui-list aui-list-in">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li class="aui-list-item" tapmode onclick="openBookInfo('{{= value.id}}','{{= value.bid}}','{{= value.name}}','{{= value.price}}','{{= value.isbn}}','{{= value.bookbox}}','{{= value.bookfind}}')">
+                    <div class="aui-list-item-inner  aui-list-item-arrow">
+                        <div class="aui-list-item-title">《{{= value.name}}》 ￥{{= value.price}} @{{= value.bookbox}}柜</div>
+                        <div class="aui-list-item-right"></div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var dialog = new auiDialog();
+
+    function search_dialog() {
+
+        dialog.prompt({
+            title: "你想搜索的书",
+            text: '输入全名或包含的文字',
+            //type:'string',
+            buttons: ['取消', '确定']
+        }, function(ret) {
+            //alert(JSON.stringify(ret));
+            if (ret.buttonIndex == 2) {
+                booklist(ret.text);
+            }
+        })
+    }
+
+    function openBookInfo(id, bid, name, price, isbn, bookbox, bookfind) {
+        var book = {};
+        book.action = "newinbox";
+        book.id = id;
+        book.bid = bid;
+        book.name = name;
+        book.price = price;
+        book.isbn = isbn;
+        book.bookbox = bookbox;
+        book.bookfind = bookfind;
+
+        api.openWin({
+            name: 'bookinfo',
+            url: '../bookinfo/bookinfo.html',
+            pageParam: book,
+            bounces: false,
+            opaque: false
+        });
+    }
+
+
+    function booklist(bk_text) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereStartWith({
+                    qid: queryId,
+                    column: 'bid',
+                    value: schoolinfo.id
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "inbox",
+                    value: true
+                });
+                query.whereLike({
+                    qid: queryId,
+                    column: 'name',
+                    value: bk_text
+                });
+                query.limit({
+                    qid: queryId,
+                    value: 100
+                });
+                query.desc({
+                    qid: queryId,
+                    column: 'updatedAt'
+                });
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'bookfind']
+                });
+                model.findAll({
+                    class: "book",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data) + JSON.stringify(err));
+                    if (data[0]) {
+                        var templateText = $api.byId('booklist_tmp').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId("booklist_area").innerHTML = dot(data);
+                        //$api.byId('list').innerHTML = dot(res);
+                    } else {
+                        $api.append($api.byId('search_out'), '<li class="aui-list-item">未能搜索到匹配书籍</li>');
+                    }
+                });
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        if (logined == 'true') {
+            $api.byId('newbooklist').innerHTML = schoolinfo.name + '搜索结果';
+            search_dialog();
+        }
+    };
+
+    function voiceSearch() {
+        var obj = api.require('speechRecognizer');
+        api.toast({
+            msg: "语音识别开始，请说话",
+            duration: 1000,
+            location: "middle"
+        });
+
+        obj.record({}, function(ret, err) {
+            if (ret.status) {
+                // ret.wordStr;
+                api.alert({
+                    title: "识别结果",
+                    msg: ret.wordStr
+                })
+                obj.stopRecord();
+            }
+        });
+    }
+</script>
+
+</html>

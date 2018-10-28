@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <title>title</title>
+        <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    </head>
+
+    <body>
+        <header id="header" class="aui-bar aui-bar-nav">
+            <a class="aui-pull-left aui-btn" tapmode onclick="closeWin()">
+                <span class="aui-iconfont aui-icon-left"></span>
+            </a>
+            <div class="aui-title">书柜位置</div>
+        </header>
+        <div id="main" class="back">
+        </div>
+        <footer id="footer" class="aui-bar aui-bar-tab aui-margin-t-10 aui-margin-b-5">
+            <div class="aui-bar-tab-item  aui-border-r" tapmode style="width: 3rem;" onclick="fntest()">
+                <i class="aui-iconfont aui-icon-comment aui-text-info"></i>
+                <div class="aui-bar-tab-label aui-text-info">咨询</div>
+            </div>
+            <div class="aui-bar-tab-item" tapmode style="width: 3rem;">
+                <i class="aui-iconfont aui-icon-star aui-text-warning"></i>
+                <div class="aui-bar-tab-label aui-text-warning">收藏</div>
+            </div>
+            <div class="aui-bar-tab-item aui-bg-warning aui-text-white" tapmode style="width: auto;" tapmode onclick="clearroute()">重设路线</div>
+            <div class="aui-bar-tab-item aui-bg-danger aui-text-white" tapmode style="width: auto;" onclick="fnMyLocation()">我的位置</div>
+        </footer>
+    </body>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript">
+        var aMap;
+        var userLocation;
+        var selectedannotations; //书柜地址数组
+        apiready = function() {
+            var header = $api.byId('header');
+            $api.fixStatusBar(header);
+            var headerPos = $api.offset(header);
+            var main = $api.byId('main');
+            var mainPos = $api.offset(main);
+
+            var footer = $api.byId('footer');
+            var footerPos = $api.offset(footer);
+
+            var g_headerPos = headerPos.h;
+            var g_frameHeight = api.frameHeight - headerPos.h - footerPos.h - 15;
+
+            aMap = api.require('aMap');
+            aMap.open({
+                rect: {
+                    x: 0,
+                    y: g_headerPos,
+                    w: 'auto',
+                    h: g_frameHeight
+                },
+                showUserLocation: true,
+                zoomLevel: 15,
+                center: {
+                    lon: 119.04124,
+                    lat: 33.558039,
+                },
+                //fixedOn: api.frameName,
+                //fixed: true
+            }, function(ret, err) {
+                if (ret.status) {
+                    console.log("地图打开成功");
+                    fnsetboxlocations();
+                    aMap.getLocation(function(ret, err) {
+                        if (ret.status) {
+                            userLocation = ret;
+                            //alert(JSON.stringify(ret)); //个人位置信息ret
+                        } else {
+                            alert(JSON.stringify(err));
+                        }
+                    });
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        };
+
+        selectedannotations = [{
+            id: 1,
+            lon: 119.034626,
+            lat: 33.552157,
+        }, {
+            id: 2,
+            lon: 119.034162,
+            lat: 33.546778,
+        }, {
+            id: 3,
+            lon: 119.036691,
+            lat: 33.552094,
+        }];
+
+        function fnOpenmap() {
+
+        }
+
+        function fnsetboxlocations() {
+            aMap.addAnnotations({
+                annotations: selectedannotations,
+                icons: 'widget://image/main_index_checkin_pressed.png',
+                draggable: false,
+                timeInterval: 2.0
+            }, function(ret) {
+                if (ret.eventType == 'click') {
+                    fnSearchroute(selectedannotations[ret.id - 1]);
+                    fntBubble(ret.id);
+                }
+            });
+        }
+
+        function fntBubble(bookboxid_) {
+            aMap.setBubble({
+                id: bookboxid_,
+                content: {
+                    title: '淮阴工学院' + bookboxid_ + '号柜',
+                    illus: 'http://ico.ooopic.com/ajax/iconpng/?id=145044.png'
+                },
+                styles: {
+                    titleColor: '#000',
+                    titleSize: 16,
+                    subTitleColor: '#999',
+                    subTitleSize: 12,
+                    illusAlign: 'left'
+                }
+            }, function(ret) {
+                if (ret) {
+                    aMap.closeBubble({
+                        id: ret.id
+                    });
+                    //alert(JSON.stringify(ret));
+                }
+            });
+            aMap.popupBubble({
+                id: bookboxid_
+            });
+        }
+
+        function fnSearchroute(finish_) {
+            aMap.removeRoute({
+                ids: [0, 1]
+            });
+            aMap.searchRoute({
+                id: 1,
+                type: 'walk',
+                start: {
+                    lon: userLocation.lon,
+                    lat: userLocation.lat
+                },
+                end: {
+                    lon: finish_.lon,
+                    lat: finish_.lat
+                },
+                waypoints: []
+            }, function(ret, err) {
+                if (ret.status) {
+                    // api.alert({
+                    //     msg: JSON.stringify(ret)
+                    // });
+                    aMap.drawRoute({
+                        id: 1,
+                        autoresizing: false,
+                        index: 0,
+                        styles: {
+                            walkLine: {
+                                width: 3,
+                                color: '#698B22',
+                                lineDash: false,
+                                strokeImg: ''
+                            },
+                            icons: {
+                                start: '',
+                                end: '',
+                                man: ''
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function fnMyLocation() {
+            aMap.getLocation(function(ret, err) {
+                if (ret.status) {
+                    //alert(JSON.stringify(ret));
+                    aMap.setCenter({
+                        coords: {
+                            lon: ret.lon,
+                            lat: ret.lat
+                        },
+                        animation: true
+                    });
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }
+
+        function clearroute() {
+            aMap.removeRoute({
+                ids: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            });
+        }
+
+
+        function closeWin() {
+            api.closeWin();
+        }
+
+        function fntest() {
+            alert("未开通");
+        }
+    </script>
+
+</html>

@@ -1,0 +1,34 @@
+{
+    "citys": [
+              {
+              "id": 10001,
+              "city": "淮阴工学院",
+              "pinyin": "huaiyingongxueyuan"
+              },
+              {
+              "id": 10002,
+              "city": "淮阴师范学院",
+              "pinyin": "huaiyinshifanxueyuan"
+              },
+              {
+              "id": 10003,
+              "city": "淮安信息职业技术学院",
+              "pinyin": "huaixingxizhiyejisuxueyuan"
+              },
+              {
+              "id": 10004,
+              "city": "江苏食品药品技术学院",
+              "pinyin": "jiangsushipingyaopingjishuxueyuan"
+              },
+              {
+              "id": 10005,
+              "city": "江苏财经职业技术学院",
+              "pinyin": "jiangsucaijingzhiyejishuxueyuan"
+              },
+              {
+              "id": 10006,
+              "city": "南京林业大学南方学院",
+              "pinyin": "nanjinlingyedaxuenanfangxueyuan"
+              }
+              ]
+}

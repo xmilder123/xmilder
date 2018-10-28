@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-success" onclick="openScan2()">扫一扫你取出书籍的ISBN码</div>
+            </div>
+            <div id="book_info" class="aui-card-list-footer">
+                暂无该书信息
+            </div>
+        </div>
+    </section>
+
+
+    <section class="aui-content">
+        <div id="timeline_area" class="aui-timeline">
+            <!-- <div class="aui-timeline-item-header">2017年1月8日</div> -->
+            <script id="timeline_list" type="text/x-dot-template">
+                {{~ it : value : index }} {{? value.act == "捐出" }}
+                <div class="aui-timeline-item">
+                    <div class="aui-timeline-item-label-icon aui-bg-danger">
+                        <i class="aui-iconfont aui-icon-like text-light"></i>
+                    </div>
+                    <div class="aui-timeline-item-inner">
+                        <div class="aui-card-list">
+                            <div class="aui-card-list-header aui-border-b">
+                                <div>大师兄🌹🌹🌹{{= value.user}}🌹🌹🌹于{{= value.createdAt}}将该书放入{{= value.box}}柜，定价{{= value.price}}元</div>
+                                <i class="aui-iconfont aui-icon-star aui-text-danger"></i>
+                            </div>
+                            <div class="aui-card-list-content-padded">
+                                <div class="aui-list-item-media" style="width:8rem"><img src="{{= value.photo.url}}"></div>
+                            </div>
+                            <div class="aui-card-list-footer aui-border-t aui-font-size-12">
+                                留言：请爱惜书籍
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{??}}
+                <div class="aui-timeline-item">
+                    <div class="aui-timeline-item-label aui-bg-info text-light">NO.{{=index}}</div>
+                    <div class="aui-timeline-item-inner">
+                        <div class="aui-card-list">
+                            <div class="aui-card-list-header aui-border-b">
+                                <div>{{=index+1}}师兄🍀🍀{{= value.user}}🍀🍀于{{= value.createdAt}}将该书{{= value.act}}</div>
+                                <i class="aui-iconfont aui-icon-star aui-text-danger"></i>
+                            </div>
+                            <div class="aui-card-list-content-padded">
+                                {{? value.act2 == "归还" }} {{=index+1}}师兄🍎🍎{{= value.user}}🍎🍎于{{= value.createdAt}}将该书{{= value.act2}}到{{= value.box2}}柜，定价{{= value.price}}元
+                                <div class="aui-list-item-media" style="width:8rem"><img src="{{= value.photo.url}}"></div>{{?}}
+                            </div>
+                            <div class="aui-card-list-footer aui-border-t aui-font-size-12">
+                                <div><i class="aui-iconfont aui-icon-note aui-font-size-14"></i> 666</div>
+                                <div><i class="aui-iconfont aui-icon-laud aui-font-size-14"></i> 888</div>
+                                <div><i class="aui-iconfont aui-icon-star aui-font-size-14"></i> 888</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{?}} {{~}}
+            </script>
+        </div>
+    </section>
+
+</body>
+
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var FNScanner;
+    var book_info = $api.byId('book_info');
+
+    var bookoid;
+    var locate;
+    var bkid;
+    var book_name;
+    var book_isbn;
+    var account;
+
+    function openScan2() {
+        FNScanner.openScanner({
+            autorotation: true
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret) {
+                if (ret.content) {
+                    book_isbn = ret.content;
+
+                    query.createQuery(function(ret, err) {
+                        if (ret && ret.qid) {
+                            var queryId = ret.qid;
+                            query.whereEqual({
+                                qid: queryId,
+                                column: 'isbn',
+                                value: book_isbn
+                            });
+                            // query.whereEqual({
+                            //     qid: queryId,
+                            //     column: 'act',
+                            //     value: '取出'
+                            // });
+                            query.whereEqual({
+                                qid: queryId,
+                                column: 'user',
+                                value: userinfo.name
+                            });
+                            query.include({
+                                qid: queryId,
+                                column: 'photo'
+                            });
+                            model.findAll({
+                                class: "bookline",
+                                qid: queryId
+                            }, function(data, err) {
+                                //  {"id":"599175d98ce793c369fdf229","bid":"100012174917","act":"取出","user":"xmilder","message":null,"name":"高等数学辅导及习题精解","price":"20","box":"hyit004-0","isbn":"9787563445042","act2":"归还","createdAt":"2017-08-14T10:05:13.919Z","updatedAt":"2017-09-06T15:22:44.941Z","photo":{"classify":"bookinfolib","owner":"xmilder","createdAt":"2017-09-01T01:33:29.229Z","updatedAt":"2017-09-01T01:33:29.229Z","id":"59a8b8e9ec09f42e0dff82d3","url":"http://af3f00fd16e3f1f81824.b0.upaiyun.com/apicloud/c68c9e472eaa54fceaa64887db27dddc.jpg","name":"frontcover","type":"image/jpeg","size":37337,"filename":"frontcover"},"book(uz*R*id)":null},
+                                console.log(JSON.stringify(data));
+                                if (data) {
+
+                                    var templateText = $api.byId('timeline_list').innerHTML;
+                                    var dot = doT.template(templateText);
+                                    $api.byId('timeline_area').innerHTML = dot(data);
+
+                                    //fnUpdatabookline(data);
+
+                                    // bookoid = data[0]['id'];
+                                    // book_name = data[0]['name'];
+                                    // book_info.innerHTML = '这是你花了' + data[0]['price'] + '元取出的《' + book_name + '》';
+                                } else {
+                                    console.log(JSON.stringify(error));
+                                }
+                            });
+                        }
+                    });
+                }
+            } else {
+                alert('扫描失败，请重新扫描');
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        FNScanner = api.require('FNScanner');
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        // if (logined == 'true') {
+        //     account = ;
+        //     school = schoolinfo;
+        // }
+
+    };
+
+    function fnUpdatabookline(data_) {
+        var list = $api.byId('timebookline');
+        // 1. 编译模板函数
+        var tempFn = doT.template($api.byId('template').innerHTML);
+        // 2. 多次使用模板函数
+        var resultText = tempFn(data_);
+        $api.html(list, resultText);
+    }
+</script>
+
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../../css/aui.css" />
+</head>
+
+<body style="height: 100%; margin: 0">
+    <!-- <section class="aui-content-padded"> -->
+    <div id="container" style="height: 100%"></div>
+    <!-- </section> -->
+    <!-- <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-header">
+                我的预约书籍清单
+            </li>
+        </ul>
+        <ul id="mywillbook_area" class="aui-list aui-list-in">
+            <script id="mywillbook_list" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li id="{{= value.id}}" class="aui-list-item aui-list-item-middle" tapmode onclick="willbooklist_dialog('{{= value.id}}','{{= value.bookbox}}')">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">{{=index}}.{{= value.title}}</div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </div> -->
+
+    <!-- <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-header">
+                我从流转书柜取的书
+            </li>
+        </ul>
+        <ul id="mytakebook_area" class="aui-list aui-list-in">
+            <script id="mytakebook_list" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">{{=index}}.{{= value.name}}</div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </div> -->
+    <!-- <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-header">
+                我存入流转书柜的书
+            </li>
+        </ul>
+        <ul id="myofferbook_area" class="aui-list aui-list-in">
+            <script id="myofferbook_list" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li id="myofferbook_list" class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">{{=index}}.{{= value.name}}</div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </div> -->
+</body>
+<script type="text/javascript" src="../../../script/api.js"></script>
+<script type="text/javascript" src="../../../script/doT.js"></script>
+<script type="text/javascript" src="../../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../../script/m2m.js"></script>
+<script type="text/javascript" src="../../../script/account.js"></script>
+<script type="text/javascript" src="../../../script/echarts/echarts.js"></script>
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var app = {};
+    var option = null;
+    myChart.showLoading();
+    var xml;
+
+    function drawpic(xml) {
+        myChart.hideLoading();
+
+        var graph = echarts.dataTool.gexf.parse(xml);
+        var categories = [];
+        for (var i = 0; i < 9; i++) {
+            categories[i] = {
+                name: '类目' + i
+            };
+        }
+        graph.nodes.forEach(function(node) {
+            node.itemStyle = null;
+            node.value = node.symbolSize;
+            node.symbolSize /= 1.5;
+            node.label = {
+                normal: {
+                    show: node.symbolSize > 30
+                }
+            };
+            node.category = node.attributes.modularity_class;
+        });
+        option = {
+            title: {
+                text: 'Les Miserables',
+                subtext: 'Default layout',
+                top: 'bottom',
+                left: 'right'
+            },
+            tooltip: {},
+            legend: [{
+                // selectedMode: 'single',
+                data: categories.map(function(a) {
+                    return a.name;
+                })
+            }],
+            animationDuration: 1500,
+            animationEasingUpdate: 'quinticInOut',
+            series: [{
+                name: 'Les Miserables',
+                type: 'graph',
+                layout: 'none',
+                data: graph.nodes,
+                links: graph.links,
+                categories: categories,
+                roam: true,
+                label: {
+                    normal: {
+                        position: 'right',
+                        formatter: '{b}'
+                    }
+                },
+                lineStyle: {
+                    normal: {
+                        color: 'source',
+                        curveness: 0.3
+                    }
+                }
+            }]
+        };
+
+        myChart.setOption(option);
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    };
+
+    // var locate;
+    // var bkid;
+    // var book_name;
+    // var book_isbn;
+
+    //var school ;
+    //$api.byId('newbooklist').innerHTML = school.city + '最新入柜书籍列表';
+
+    function willbooklist_dialog(li_id, box) {
+        var go = {};
+        bboxListjson(box);
+
+        api.confirm({
+            title: '我想要的书',
+            msg: '该书在' + CurrentBoxDescribe,
+            buttons: ['书柜位置', '删除', '取消']
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            //var index = ret.buttonIndex;
+            switch (ret.buttonIndex) {
+                case 1:
+                    // 书柜位置 1
+                    go.to = box;
+                    openNewWindow('boxlistmap', 'boxlistmap/index', go);
+                    break;
+                case 2:
+                    // 删除 2
+                    model.deleteById({
+                        class: 'usercart',
+                        id: li_id
+                    }, function(ret, err) {
+                        if (ret) {
+                            console.log(JSON.stringify(ret));
+                            $api.byId('mywillbook_area').removeChild($api.byId(li_id));
+                        } else {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+                    break;
+
+                default:
+
+            }
+        });
+    }
+
+    function openBookInfo(book_id, isbn, price) {
+
+        api.openWin({
+            name: 'bookinfo',
+            url: './bookinfo.html',
+            pageParam: {
+                book_id: book_id,
+                price: price,
+                isbn: isbn
+            },
+            bounces: false,
+            opaque: false
+        });
+    }
+
+    function willbooklist() {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+
+                query.whereEqual({
+                    qid: queryId,
+                    column: "username",
+                    value: userinfo.name
+                });
+                query.limit({
+                    qid: queryId,
+                    value: 100
+                });
+                // query.desc({
+                //     qid: queryId,
+                //     column: 'updatedAt'
+                // });
+
+                // query.justFields({
+                //     qid: queryId,
+                //     value: ['id', 'bid', 'name']
+                // });
+
+                model.findAll({
+                    class: "usercart",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        var templateText = $api.byId('mywillbook_list').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId('mywillbook_area').innerHTML = dot(data);
+
+                        //$api.byId('list').innerHTML = dot(res);
+                        // api.execScript({
+                        //     name: 'main',
+                        //     script: 'fnchangecaseNum(' + data.length + ');'
+                        // });
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    function booklist(username, acter, area, list) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+
+                query.whereEqual({
+                    qid: queryId,
+                    column: "user",
+                    value: username
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "act",
+                    value: acter
+                });
+
+                query.limit({
+                    qid: queryId,
+                    value: 100
+                });
+                query.desc({
+                    qid: queryId,
+                    column: 'updatedAt'
+                });
+
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'bid', 'name']
+                });
+
+                model.findAll({
+                    class: "bookline",
+                    qid: queryId
+                }, function(data, err) {
+
+                    if (data) {
+                        //alert(JSON.stringify(data));
+                        var templateText = $api.byId(list).innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId(area).innerHTML = dot(data);
+
+                        //$api.byId('list').innerHTML = dot(res);
+                        api.execScript({
+                            name: 'main',
+                            script: 'fnchangecaseNum(' + data.length + ');'
+                        });
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        if (logined == 'true') {
+            //willbooklist();
+            //booklist(userinfo.name, '取出', 'mytakebook_area', 'mytakebook_list');
+            //booklist(userinfo.name, '捐出', 'myofferbook_area', 'myofferbook_list');
+        }
+        //同步返回结果：
+        xml = api.readFile({
+            sync: true,
+            path: 'widget://res/les-miserables.gexf'
+        });
+        drawpic(xml);
+    };
+</script>
+
+</html>

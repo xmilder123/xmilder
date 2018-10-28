@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <section class="aui-content">
+        <div id="booklist_area" class="aui-card-list">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                <div class="aui-card-list-header">
+                </div>
+                <div class="aui-card-list-content-padded">
+                    <p><img src="{{=it.images.large}}" /></p>
+                    <p>作者:{{=it.author}}</p>
+                    <p>出版社:{{=it.publisher}}</p>
+                    <p>出版年:{{=it.pubdate}}</p>
+                    <p>定价:{{=it.price}}</p>
+                    <p>内容简介:{{=it.summary}}</p>
+                </div>
+                <div class="aui-card-list-footer">
+                    <p>
+                        <div id="will_pay" class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="TakeintoMycart()">放入我的购物篮</div>
+                    </p>
+                </div>
+            </script>
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var locate;
+    var bkid;
+    var book_name;
+    var book_isbn;
+    var book_price;
+    var account;
+    var dialog = new auiDialog();
+    var p;
+
+    function doubaninfo() {
+        Douban_Api_Isbn(p.isbn, 'images,author,publisher,pubdate,price,summary', function(data) {
+            if (data) {
+                //alert(JSON.stringify(data));
+                var templateText = $api.byId('booklist_tmp').innerHTML;
+                var dot = doT.template(templateText);
+                $api.byId("booklist_area").innerHTML = dot(data);
+                //$api.byId('pay').innerHTML = '支付' + p_price + '元取书';
+            }
+        });
+    }
+
+    function TakeintoMycart() {
+        //预约单	reservation list;
+        alert('真在实现功能');
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        query = api.require('query');
+        model = api.require('model');
+        p = api.pageParam;
+        get_base_info();
+        doubaninfo();
+    };
+</script>
+
+</html>

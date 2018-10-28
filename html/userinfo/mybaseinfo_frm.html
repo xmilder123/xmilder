@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <div class="aui-content-padded aui-border">
+        <div class="aui-info aui-margin-t-10 aui-padded-l-10 aui-padded-r-10" tapmode onclick="fnSetAvatar()">
+            <div class="aui-info-item">
+                <h2 class="aui-margin-l-5">我的头像</h2>
+            </div>
+            <div class="aui-info-item">
+                <img id="avatar" src="../../image/profile_default.png" style="width:2.5rem" class="aui-img-round">
+            </div>
+        </div>
+        <!-- <div class="aui-info aui-padded-l-10 aui-padded-r-10">
+                <div class="aui-info-item">
+                    <h2 class="aui-margin-l-5">二维码</h2>
+                </div>
+                <div class="aui-info-item">
+                    <img src="../../image/evening.jpg" style="width:2.5rem">
+                </div>
+            </div> -->
+    </div>
+
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">我的基本信息</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        用户名
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="username" type="text" disabled="disabled">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        手机号码
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="mobile" type="number" placeholder="Number">
+                    </div>
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="validate_phone()">验证</div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        电子邮箱
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="email" type="text" placeholder="电子邮箱">
+                    </div>
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="validate_email()">验证</div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <!-- <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-home"></i>
+                    </div> -->
+                    <div class="aui-list-item-label">
+                        所在学校
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='school' type="text" placeholder="你所在的学校">
+                    </div>
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="select_school()">选择</div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        个人介绍
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea id='introduction' placeholder="100字以内"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="updateMybaseinfo()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var now = Date.now();
+
+    function select_school() {
+        get_school(function(ret_dat) {
+            console.log(JSON.stringify(ret_dat));
+            $api.val($api.byId('school'), ret_dat);
+        });
+    }
+
+    function updateMybaseinfo() {
+        model.updateById({
+            class: 'user',
+            id: userinfo.id,
+            value: {
+                mobile: $api.val($api.byId('mobile')),
+                email: $api.val($api.byId('email')),
+                school_ID: schoolinfo.id,
+                school: schoolinfo.name,
+                introduction: $api.val($api.byId('introduction'))
+            }
+        }, function(ret2, err2) {
+            console.log(JSON.stringify(ret2));
+            if (ret2) {
+                userinfo.email = ret2.email;
+                userinfo.mobile = ret2.mobile;
+                userinfo.school = ret2.school;
+                userinfo.schoolid = ret2.school_ID;
+                userinfo.introduction = ret2.introduction;
+                $api.setStorage('userinfo', userinfo);
+
+                api.alert({
+                    msg: '信息修改完成',
+                }, function(ret3, err3) {
+
+                    console.log(JSON.stringify(ret3));
+                    closeWin();
+                });
+            } else {
+                console.log(JSON.stringify(err2));
+            }
+        });
+    }
+
+    function reg() {
+        var account = $api.byId('account').value;
+        var password = $api.byId('password').value;
+        var passwordConfirm = $api.byId('password_confirm').value;
+        var email = $api.byId('email').value;
+        var userschool = $api.byId('school').value;
+        var toast = new auiToast();
+        //var phone_rule = /^1[0-9]{10}$/; //验证规则
+        //var flag = reg.test(phoneNum); //true
+        var regtype = /^[\u4E00-\u9FA5a-zA-Z0-9_]{3,16}$/;
+        //汉字 英文字母 数字 下划线组成，3-20位正则表达式
+        if (!regtype.test(account)) {
+            toast.fail({
+                title: "用户名由汉字/英文字母/数字/下划线组成，3-16位",
+                duration: 2000
+            });
+            return;
+        }
+        if (password.length < 6) {
+            toast.fail({
+                title: "密码最短需要 6 个字符",
+                duration: 2000
+            });
+            return;
+        }
+        if (passwordConfirm != password) {
+            toast.fail({
+                title: "密码两次输入不一致",
+                duration: 2000
+            });
+            return;
+        }
+        if (!checkEmail(email)) {
+            toast.fail({
+                title: "邮箱地址不合法",
+                duration: 2000
+            });
+            return;
+        }
+        if (userschool.length < 2) {
+            toast.fail({
+                title: "选择你所在学校",
+                duration: 2000
+            });
+            return;
+        }
+
+        user.register({
+            username: account,
+            password: password,
+            email: email
+        }, function(ret, err) {
+            if (ret) {
+                console.log(JSON.stringify(ret));
+                //{"createdAt":"2017-08-17T13:15:32.392Z","updatedAt":"2017-08-17T13:15:32.392Z","id":"599596f45205380e374e8cac","username":"许","email":"asd@163.com","credentials":[],"challenges":[]}
+                if (!ret.error) {
+                    toast.success({
+                        title: "注册成功！",
+                        duration: 2000
+                    });
+                    //偏好数据
+                    api.setPrefs({
+                        key: 'first_reg',
+                        value: schoolinfo.id
+                    });
+                    api.setPrefs({
+                        key: 'school',
+                        value: schoolinfo.name
+                    });
+                    //在名为winName的window中执行脚本
+                    var getaccount = 'get_account(\'' + account + '\');';
+                    api.execScript({
+                        name: 'login',
+                        script: getaccount
+                    });
+                    setTimeout("closeWin()", 3000);
+                } else if (ret.error.status == 202) {
+                    //{"error":{"name":"uniqueness","status":202,"message":"username:already exists","statusCode":202}}
+                    toast.fail({
+                        title: "该用户已存在",
+                        duration: 2000
+                    });
+                }
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+
+    };
+
+    var model;
+    var smsVerify = null;
+    apiready = function() {
+
+        api.parseTapmode();
+        get_base_info();
+        smsVerify = api.require('smsVerify');
+
+        // 初始化
+        register();
+        $api.byId('avatar').src = userinfo.avatar_url;
+        $api.val($api.byId('username'), userinfo.name);
+        $api.val($api.byId('school'), userinfo.school);
+        $api.val($api.byId('email'), userinfo.email);
+        $api.val($api.byId('mobile'), userinfo.mobile);
+        $api.val($api.byId('introduction'), userinfo.introduction);
+        model = api.require('model');
+    }
+
+    // 注册，初始化
+    function register() {
+        smsVerify.register(function(ret, err) {
+            if (ret.status) {
+                //api.alert({msg: '注册成功'});
+                console.log('注册成功');
+            } else {
+                api.alert({
+                    msg: err.code + ' 注册失败'
+                });
+            }
+        });
+    }
+
+    // 发短信验证码
+    function validate_phone() {
+        //  	var phone = document.getElementById("phone").value;
+        //		smsVerify.sms({
+        //			phone:phone,
+        //		},function(ret, err){
+        //			if(ret.status){
+        //				// 新增的安卓智能验证功能
+        //				if( ret.smart == true ){	// 安卓版特有功能 智能验证成功
+        //					api.alert({msg: '智能验证成功，开发者可以为用户直接跳转到手机号验证成功之后的操作'});
+        //				}else{
+        //					api.alert({msg: '短信发送成功'});
+        //				}
+        //			}else{
+        //				api.alert({msg: err.code+' 短信发送失败'});
+        //			}
+        //		});
+        var phone = $api.val($api.byId('mobile'));
+        smsVerify.sms({
+            phone: phone,
+            country: "86"
+        }, function(ret, err) {
+            if (ret.status) {
+                if (ret.smart == true) { // 安卓版特有功能 智能验证
+                    api.alert({
+                        msg: '智能验证成功：开发者可以在这里直接执行手机号验证成功之后的相关操作'
+                    });
+                } else {
+                    api.alert({
+                        msg: '短信发送成功'
+                    });
+                }
+            } else {
+                api.alert({
+                    msg: err.code + ' ' + err.msg
+                });
+            }
+        });
+    }
+
+    function fnSetAvatar() {
+        api.actionSheet({
+            title: '选择',
+            // cancelTitle: '取消',
+            buttons: ['拍照', '相册', '图片库']
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret.buttonIndex < 4) {
+                var sourceTypes = ['camera', 'album', 'library'];
+                api.getPicture({
+                    sourceType: sourceTypes[ret.buttonIndex - 1],
+                    mediaValue: 'pic',
+                    allowEdit: true,
+                    quality: 50,
+                    targetWidth: 100,
+                    targetHeight: 100,
+                    saveToPhotoAlbum: false
+                }, function(ret2, err2) {
+                    console.log(JSON.stringify(ret2));
+                    if (ret2.data) {
+                        fnUploadAtavar(ret2.data);
+                    } else {
+                        console.log(JSON.stringify(err2));
+                    }
+                });
+
+            }
+        });
+    }
+
+    function fnUploadAtavar(avatarUrl) {
+        //删除旧头像功能
+        model.deleteById({
+            class: 'file',
+            id: userinfo.avatar
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+        });
+
+        model.uploadFile({
+            report: false,
+            data: {
+                file: {
+                    name: 'avatar',
+                    url: avatarUrl
+                },
+                values: {
+                    owner: userinfo.name,
+                    classify: 'userinfo'
+                }
+            }
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret) {
+                $api.byId('avatar').src = ret.url;
+                userinfo.avatar = ret.id;
+                userinfo.avatar_url = ret.url;
+                $api.setStorage('userinfo', userinfo);
+                //在名为winName的window中找到名为frmName的frame，并在该frame中执行jsfun脚本
+                api.execScript({
+                    name: 'main',
+                    frameName: 'my_frame',
+                    script: 'update_avatar("' + ret.url + '");'
+                });
+
+                model.updateById({
+                    class: 'user',
+                    id: userinfo.id,
+                    value: {
+                        avatar: ret.id
+                    }
+                }, function(ret2, err2) {
+                    // if( ret2 ){ // alert( JSON.stringify( ret2 ) ); // }else{ // alert( JSON.stringify( err2 ) ); // }
+                });
+                api.imageCache({
+                    url: ret.url
+                }, function(ret3, err3) {
+                    console.log(JSON.stringify(ret3));
+                    //var url = ret.url;
+                });
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+    }
+</script>
+
+</html>

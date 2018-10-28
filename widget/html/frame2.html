@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>个人</title>
+        <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+        <style>
+
+        </style>
+    </head>
+
+    <body>
+        <!-- 顶部 -->
+        <section class="aui-content" id="user-info">
+            <div class="aui-list aui-media-list aui-list-noborder aui-bg-light_blue">
+                <div class="aui-list-item aui-list-item-middle">
+                    <div class="aui-media-list-item-inner ">
+                        <div class="aui-list-item-media" style="width:3rem;">
+                            <img id="icon" src="../image/avatar.jpg" class="aui-img-round">
+                        </div>
+                        <div class="aui-list-item-inner">
+                            <div id="username" class="aui-list-item-text text-white aui-font-size-18">用户名</div>
+                            <div class="aui-list-item-text text-white">
+                                <div id="useremail"><i class="aui-iconfont aui-icon-mobile aui-font-size-14"></i>&nbsp;绑定手机</div>
+                            </div>
+                            <div class="aui-list-item-title aui-font-size-18"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--         <section class="aui-content aui-grid aui-margin-b-15">
+            <div class="aui-row">
+                <div class="aui-col-xs-4 aui-border-r">
+                    <big class="aui-text-warning">0.00<small> 元</small></big>
+                    <div class="aui-gird-lable aui-font-size-12">进账</div>
+                </div>
+                <div class="aui-col-xs-4 aui-border-r">
+                    <big class="aui-text-danger">000<small> 本</small></big>
+                    <div class="aui-gird-lable aui-font-size-12">捐书</div>
+                </div>
+                <div class="aui-col-xs-4">
+                    <big class="aui-text-success">000<small> 个</small></big>
+                    <div class="aui-gird-lable aui-font-size-12">红心</div>
+                </div>
+            </div>
+        </section> -->
+        <section class="aui-content">
+            <ul class="aui-list aui-list-in aui-margin-b-15">
+                <ul class="aui-list aui-border aui-collapse">
+                    <div class="aui-collapse-item">
+                        <li class="aui-list-item aui-collapse-header" tapmode>
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label-icon">
+                                    <i class="aui-iconfont aui-icon-like aui-text-primary"></i>
+                                </div>
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-title">我的订单</div>
+                                </div>
+                                <div class="aui-list-item-right">
+                                    <i class="aui-iconfont aui-icon-down aui-collapse-arrow"></i>
+                                </div>
+                            </div>
+                        </li>
+                        <div class="aui-collapse-content">
+                            <li class="aui-list-item">
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-title">接受订单</div>
+                                </div>
+                            </li>
+                            <li class="aui-list-item">
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-title">取消订单</div>
+                                </div>
+                            </li>
+                            <li class="aui-list-item">
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-title">完成订单</div>
+                                </div>
+                            </li>
+                        </div>
+                    </div>
+                </ul>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-location aui-text-info"></i>
+                    </div>
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">完善个人资料</div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-lock aui-text-danger"></i>
+                    </div>
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">我的智能锁</div>
+                    </div>
+                </li>
+            </ul>
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-image aui-text-info"></i>
+                    </div>
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">我的消息</div>
+                        <div class="aui-list-item-right">详细</div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-cart aui-text-info"></i>
+                    </div>
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">授权管理</div>
+                        <div class="aui-list-item-right">查看</div>
+                    </div>
+                </li>
+                <li class="aui-list-item" tapmode onclick="fnOpenNewwin(setting)">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-gear aui-text-warning"></i>
+                    </div>
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">系统管理</div>
+                        <div class="aui-list-item-right">设置</div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </body>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/aui-collapse.js"></script>
+    <script type="text/javascript">
+        apiready = function() {
+            api.parseTapmode();
+        }
+        var collapse = new auiCollapse({
+            autoHide: false //是否自动隐藏已经展开的容器
+        });
+
+        function fnOpenNewwin(winname){
+            api.openWin({
+                name: winname + '.html',
+                url: './'+winname+'.html',
+                pageParam: {
+                    name: 'test'
+                }
+            });
+        }
+    </script>
+
+</html>

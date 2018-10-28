@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>快速完成注册</title>
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+</head>
+
+<body>
+    <div class="aui-content-padded aui-margin-b-15 aui-font-size-20">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">快速注册</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-mobile"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='account' type="text" placeholder="请输入用户名[>=4个字符]">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-lock"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='password' type="password" placeholder="请输入密码[>=6数字或字符]">
+                    </div>
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-display"></i>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-lock"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='password_confirm' type="password" placeholder="请确认密码[确保两次一致]">
+                    </div>
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-display"></i>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-mail"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='email' type="email" placeholder="你的邮箱[例如:1001@qq.com]">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="reg()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+var user;
+
+function reg() {
+
+    var account = $api.byId('account').value;
+    var password = $api.byId('password').value;
+    var passwordConfirm = $api.byId('password_confirm').value;
+    var email = $api.byId('email').value;
+    var toast = new auiToast();
+
+    //var phone_rule = /^1[0-9]{10}$/; //验证规则
+    //var flag = reg.test(phoneNum); //true
+
+    if (account.gblen < 4) {
+        toast.fail({
+            title: "用户名最短需要 4 个字符",
+            duration: 2000
+        });
+        return;
+    }
+    if (password.length < 6) {
+        toast.fail({
+            title: "密码最短需要 6 个字符",
+            duration: 2000
+        });
+        return;
+    }
+    if (passwordConfirm != password) {
+        toast.fail({
+            title: "密码两次输入不一致",
+            duration: 2000
+        });
+        return;
+    }
+
+    if (!checkEmail(email)) {
+        toast.fail({
+            title: "邮箱地址不合法",
+            duration: 2000
+        });
+        return;
+    }
+
+    // api.setPrefs({
+    //     key: 'account',
+    //     value: account
+    // });
+
+    user.register({
+        username: account,
+        password: password,
+        email: email
+    }, function(ret, err) {
+        if (ret) {
+            if (!ret.error) {
+                //alert(JSON.stringify(ret));
+                toast.success({
+                    title: "注册成功！",
+                    duration: 2000
+                });
+                closeWin();
+
+            } else if (ret.error.status == 202) {
+                toast.fail({
+                    title: "该用户已存在",
+                    duration: 2000
+                });
+            }
+        } else {
+            alert(JSON.stringify(err));
+        }
+    });
+
+};
+
+var checkEmail = function(email) {
+    email = email || '';
+    return (email.length > 3 && email.indexOf('@') > -1);
+};
+
+String.prototype.gblen = function() {
+    var len = 0;
+    for (var i = 0; i < this.length; i++) {
+        if (this.charCodeAt(i) > 127 || this.charCodeAt(i) == 94) {
+            len += 2;
+        } else {
+            len++;
+        }
+    }
+    return len;
+}
+
+
+apiready = function() {
+    api.parseTapmode();
+
+    user = api.require('user');
+}
+
+function closeWin() {
+    api.closeWin({});
+}
+</script>
+
+</html>

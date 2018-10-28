@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <section class="aui-content">
+        <div id="booklist_area" class="aui-card-list">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                <div class="aui-card-list-content-padded">
+                    <p><img src="{{=it.images.large}}" /></p>
+                    <p>作者:{{=it.author}}</p>
+                    <p>出版社:{{=it.publisher}}</p>
+                    <p>出版年:{{=it.pubdate}}</p>
+                    <p>定价:{{=it.price}}</p>
+                    <p>内容简介:{{=it.summary}}</p>
+                </div>
+                <div class="aui-card-list-footer">
+                    <p>
+                        <div id="pay" class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="openDoor()"></div>
+                    </p>
+                </div>
+            </script>
+            <script id="errormsg" type="text/x-dot-template">
+
+            </script>
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+
+<script type="text/javascript">
+    var CurrentBox; //书柜名称 hyit003
+    var CurrentSubBox; //集群书柜序号 0 1 2 。。。
+    var seated; //门的编号
+    var bkid;
+    var book_name;
+    var book_isbn;
+    var book_price;
+    var account;
+    var dialog = new auiDialog();
+    var p;
+
+    function openDoor() {
+
+        model.updateById({
+            class: 'book',
+            id: p.id,
+            value: {
+                inbox: false
+            }
+        }, function(ret, err) {
+            if (ret) {
+                model.insert({
+                        class: 'bookline',
+                        value: {
+                            bid: p.bid,
+                            user: account,
+                            name: p.name,
+                            price: p.price,
+                            isbn: p.isbn,
+                            box: CurrentBox + '-' + CurrentSubBox,
+                            act: '取出'
+                        }
+                    },
+                    function(ret1, err1) {
+                        if (!err1) {
+                            OneNet_Dev_command(OnetNet_devID, function(ret) {
+                                if (ret) {
+
+                                    //在名为winName的window中执行脚本
+                                    var Taked_Book_Del = 'Taked_Book_Del(' + p_id + ');';
+                                    api.execScript({
+                                        name: 'takeoutbook',
+                                        frameName: 'takebk_frm',
+                                        script: Taked_Book_Del
+                                    });
+
+                                    dialog.alert({
+                                        title: "书籍取出",
+                                        msg: '1.请从打开的柜门中取出书\r\n2.用完可以将其存回到书柜中\r\n',
+                                        buttons: ['确定']
+                                    }, function(ret2) {
+                                        closeWin();
+                                    });
+                                }
+                            });
+                        } else {
+                            alert(JSON.stringify(err1));
+                        }
+
+                    });
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        query = api.require('query');
+        model = api.require('model');
+        p = api.pageParam;
+        CurrentBox = p.box;
+        CurrentSubBox = p.subbox;
+        seated = p.seated;
+        bboxListjson(p.box);
+        Douban_Api_Isbn(p.isbn, 'images,author,publisher,pubdate,price,summary', function(data) {
+            if (data) {
+                //console.log(JSON.stringify(data));
+                var templateText = $api.byId('booklist_tmp').innerHTML;
+                var dot = doT.template(templateText);
+                $api.byId("booklist_area").innerHTML = dot(data);
+                $api.byId('pay').innerHTML = '向师兄支付' + p.price + '元取书(虚拟)';
+            } else {
+                // var html = '';
+                //     html += '<div class="aui-card-list-header">';
+                //     html += '<div class="aui-card-list-user-name">'+抱歉，通过isbn未查询到详细信息，请小心取书，未经验证，谨防失误。+'</div>';
+                //     html += '</div>';
+                //     html += '<div class="aui-card-list-footer">';
+                //     html += '<div id="pay" class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="openDoor()"></div>'
+                //     html += '</div>'
+                //     $api.append($api.byId("booklist_area"),html);
+                alert(JSON.stringify(error));
+            }
+        });
+        get_base_info();
+        if (logined == 'true') {
+            account = userinfo.name;
+            //school = schoolinfo;
+        }
+    }
+</script>
+
+</html>

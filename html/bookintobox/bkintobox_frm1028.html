@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <section class="aui-content-padded">
+        <div class="aui-card-list">
+            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-block aui-btn-sm aui-btn-success" tapmode onclick="openScan1()">Step1.扫描书柜二维码</div>
+            </div>
+            <div id="boxstate" class="aui-card-list-footer">
+                无书柜信息
+            </div>
+        </div>
+
+    </section>
+    <div class="aui-content-padded">
+    
+    
+                <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-block aui-btn-sm aui-btn-success" tapmode onclick="openScan2()">Step2.扫描书籍ISBN码</div>
+            </div>
+            
+            
+        <ul class="aui-list aui-form-list">
+            <!-- <li class="aui-list-header">为入柜书籍定价</li> -->
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        Step3.定价:
+                    </div>
+                    <div class="aui-list-item-input">
+                        <select id="list_price" tapmode onchange="checkField(this.value)">
+                          <!-- <option value="-1" selected="selected">  ？元/每本</option> -->
+                          </select>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <section class="aui-content">
+        <div class="aui-card-list">
+            <!-- <div class="aui-card-list-header" tapmode onclick="FNPhotograph()">
+                2、扫一扫书籍ISBN码，获取书信息
+            </div> -->
+            
+<!--            <div class="aui-card-list-content-padded">
+                <div class="aui-btn aui-btn-block aui-btn-sm aui-btn-success" tapmode onclick="openScan2()">Step3.扫描书籍ISBN码</div>
+            </div>-->
+            
+            <!-- <div id="book_info" class="aui-card-list-footer">
+                暂无该书信息
+            </div> -->
+            <section class="aui-content">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-header">
+                        入柜书籍列表
+                    </li>
+                </ul>
+                <ul id="booklist_area" class="aui-list aui-list-in">
+
+                </ul>
+            </section>
+
+            <div class="aui-content-padded">
+                <div class="aui-btn aui-btn-block aui-btn-sm aui-btn-danger" tapmode onclick="fnJudge()">Step4.打开柜门</div>
+            </div>
+
+            <!-- <p class="aui-font-size-14 aui-text-success">标签打印后请贴在书的封一位置</p> -->
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<!-- <script type="text/javascript" src="../../script/doT.js"></script> -->
+<script type="text/javascript" src="./js/gen_7bookid.js"></script>
+<!-- <script type="text/javascript" src="../../script/aui-toast.js"></script> -->
+<!-- <script type="text/javascript" src="../../script/aui-dialog.js"></script> -->
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var FNScanner;
+    var CurrentBox; //书柜名称 hyit003
+    var CurrentSubBox; //集群书柜序号 0 1 2 。。。
+
+    var bkid;
+    var book_name;
+    var book_isbn;
+    var seated; //门的编号
+    var set_price = -1;
+    // var account;
+    //var school;
+
+    // var dialog = new auiDialog();
+    var judge_book = 0; //判断书籍信息获取状态（本书）
+    var Scan_Book_Array = new Array(); //扫描入柜的书籍数组
+    var judge_subbox = false; //判断书籍信息获取状态。
+    var ScanSubbox_info = new Object(); //当前扫描的书柜信息
+
+    function checkField(bookrmb) {
+        set_price = bookrmb;
+        //alert(bookrmb);
+    }
+
+    function openScan1() {
+        //var toast = new auiToast();
+        var Request = new Object();
+        FNScanner.openScanner({
+            autorotation: true
+        }, function(ret, err) {
+            //console.log(JSON.stringify(ret) + JSON.stringify(err));
+            if (ret.eventType == "success") {
+                Request = GetRequest(ret.content);
+                CurrentBox = Request['box'];
+                CurrentSubBox = Request['sub'];
+                if (bboxListjson(CurrentBox)) {
+                    OneNet_Dev_Online(OnetNet_devID, function(ret2) {
+                        var boxstate = $api.byId('boxstate');
+                        if (ret2) { //
+                            $api.html(boxstate, CurrentBoxDescribe + '<div class="aui-text-success">[在线]</div>');
+                            //根据CurrentBox和CurrentSubBox确定书柜的价格范围
+                            Display_price(CurrentBox, CurrentSubBox);
+                            judge_subbox = true;
+                        } else {
+                            $api.html(boxstate, CurrentBoxDescribe + '<div class="aui-text-danger">[掉线]</div>');
+                            api.alert({
+                                title: 'SORRY',
+                                msg: '该书柜出现异常，请稍后再试试。',
+                            }, function(ret2, err2) {
+                                if (ret2) {
+                                    closeWin();
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    api.alert({
+                        msg: '该二维码有误，无书柜信息！'
+                    });
+                }
+            }
+        });
+    }
+
+    function Display_price(Box, SubBox) {
+        query.createQuery(function(ret, err) {
+            //console.log(JSON.stringify(ret) + JSON.stringify(err));
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereEqual({
+                    qid: queryId,
+                    column: "partof",
+                    value: Box
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "sub_box",
+                    value: SubBox
+                });
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'price', 'door', 'page']
+                });
+                model.findAll({
+                    class: "subbox",
+                    qid: queryId
+                }, function(Pdata, error) {
+                    console.log(JSON.stringify(Pdata) + JSON.stringify(error));
+                    if (Pdata) {
+                        ScanSubbox_info = Pdata[0];
+                        //将价格显示在页面上
+                        var html = '';
+                        for (j = 0; j < Pdata[0].price.length; j++) {
+                            html += '<option value=' + ScanSubbox_info.price[j] + '>每本' + ScanSubbox_info.price[j] + '元</option>';
+                        }
+                        $api.html($api.byId('list_price'), html);
+                        set_price = ScanSubbox_info.price[0];
+                    } else {
+                        console.log(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    function Is_my_takeoutbook(acc, isbn, callback) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereEqual({
+                    qid: queryId,
+                    column: "user",
+                    value: acc
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "isbn",
+                    value: isbn
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "act",
+                    value: "取出"
+                });
+                query.whereNotEqual({
+                    qid: queryId,
+                    column: "act2",
+                    value: "归还"
+                });
+                query.desc({
+                    qid: queryId,
+                    column: 'createdAt'
+                });
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'bid', 'price', 'createdAt']
+                });
+                model.findAll({
+                    class: "bookline",
+                    qid: queryId
+                }, function(data, error) {
+                    console.log(JSON.stringify(data) + JSON.stringify(error));
+                    //console.log(JSON.stringify(error));
+                    if (data[0]) {
+                        return callback(data[0]);
+                    } else {
+                        return callback(null);
+                    }
+                });
+            }
+        });
+    }
+
+    function openScan2() {
+        FNScanner.openScanner({
+            autorotation: true
+        }, function(ret, err) {
+            if (ret) {
+                //alert(JSON.stringify(ret));
+                if (ret.content) {
+                    book_isbn = ret.content;
+                    Douban_Api_Isbn(book_isbn, 'id,title,price,pages', function(data, find) {
+                        if (data) {
+                            book_name = data['title'];
+                            var scan_book = {};
+                            //查看这本书是否是本人曾经取过。
+                            Is_my_takeoutbook(userinfo.name, book_isbn, function(data2) {
+                                if (data2) { //本人曾经取过的书籍
+                                    scan_book = {
+                                        "new": false,
+                                        'id': data2.id,
+                                        "bid": data2.bid,
+                                        "name": book_name,
+                                        "isbn": book_isbn,
+                                        "price": data2['price'],
+                                        "pages": data['pages']
+                                    };
+                                    // Scan_Book_Array.push(scan_book);
+                                    // Scaned_Book_Add(false, data2.bid, book_name, data2['price']); //批量增加书籍列表刷新
+                                    Scaned_Book_Add(scan_book);
+                                } else {
+                                    bkid = userinfo.schoolid + nid();
+                                    scan_book = {
+                                        "new": true,
+                                        "bid": bkid,
+                                        "name": book_name,
+                                        "isbn": book_isbn,
+                                        "price": data['price'],
+                                        "pages": data['pages'],
+                                        "bookfind": find
+                                    };
+                                    // Scan_Book_Array.push(scan_book);
+                                    // Scaned_Book_Add(true, bkid, book_name, data['price']); //批量增加书籍列表刷新
+                                    Scaned_Book_Add(scan_book);
+                                }
+                            });
+                            // api.hideProgress();
+                        } else {
+                            // api.hideProgress();
+                            Manual_input_book(book_isbn);
+                        }
+                    });
+                }
+            } else {
+                api.alert({
+                    msg: '扫描失败，亲重新扫描'
+                });
+            }
+        });
+    }
+
+    function Scaned_Book_Add(newbook) {
+        Scan_Book_Array.push(newbook);
+        var hl = $api.byId('booklist_area');
+        var html = '<li id="' + newbook.bid + '" class="aui-list-item"><div class="aui-list-item-inner">';
+        if (newbook.new) {
+            html += '<div class="aui-label aui-label-info">新</div>';
+            html += '<div class="aui-list-item-title">《' + newbook.name + '》' + '[原价:' + parseInt(newbook.price) + '元]</div>';
+        } else {
+            html += '<div class="aui-label aui-label-danger">还</div>';
+            html += '<div class="aui-list-item-title">《' + newbook.name + '》' + '[取价:' + parseInt(newbook.price) + '元]</div>';
+        }
+        html += '<div class="aui-list-item-right"><div class="aui-label aui-label-info" tapmode onclick="Scaned_Book_Del(' + newbook.bid + ')">删除</div></div>';
+        html += '</div></li>';
+        $api.prepend(hl, html);
+        // for (j = 0; j < Scan_Book_Array.length; j++) {
+        //     console.log(JSON.stringify(Scan_Book_Array[j]));
+        // }
+        judge_book++;
+    }
+
+    function Scaned_Book_Del(id) {
+        //console.log(id);
+        for (j = 0; j < Scan_Book_Array.length; j++) {
+            if (Scan_Book_Array[j].bid == id) {
+                Scan_Book_Array.remove(j);
+                break;
+            }
+        }
+        $api.byId('booklist_area').removeChild($api.byId(id));
+        // for (j = 0; j < Scan_Book_Array.length; j++) {
+        //     console.log(JSON.stringify(Scan_Book_Array[j]));
+        // }
+        judge_book--;
+    }
+
+    function fnJudge() {
+        if (judge_book > 0 && set_price >= 0) {
+            printTap_openDoor();
+        } else {
+            alert("请录入书籍信息，或选择价格！");
+        }
+    }
+
+    function Book_data_into_db(photo, Book_Array, callback) {
+        (function(i, length, count, callback) {
+            for (; i < length; i++) {
+                (function(i) {
+                    Loop_Book_data_into_db(i, photo, function() {
+                        //arr[i] = value;
+                        if (++count == length) callback();
+                    })
+                })(i)
+            }
+        })(0, Book_Array.length, 0, function() {
+            //all array items has been processed!
+            return callback('ok');
+        })
+        // 作者：明明三省
+        // 链接：http://www.jianshu.com/p/ff2b4cc4f9e5
+    }
+
+    function Loop_Book_data_into_db(j, photo, callback) {
+
+        if (Scan_Book_Array[j].new) { //新书入柜
+            model.insert({
+                class: 'book',
+                value: {
+                    bid: Scan_Book_Array[j].bid,
+                    donater: userinfo.name,
+                    name: Scan_Book_Array[j].name,
+                    isbn: Scan_Book_Array[j].isbn,
+                    price: set_price,
+                    bookbox: CurrentBox,
+                    subbox: CurrentSubBox,
+                    seated: seated,
+                    inbox: true,
+                    bookfind: Scan_Book_Array[j].bookfind,
+                    'user(uz*R*id)': userinfo.id
+                }
+            }, function(ret1, err1) {
+                if (ret1) {
+                    console.log(JSON.stringify(ret1));
+                    model.insert({
+                        class: 'bookline',
+                        value: {
+                            bid: Scan_Book_Array[j].bid,
+                            user: userinfo.name,
+                            name: Scan_Book_Array[j].name,
+                            price: set_price,
+                            box: CurrentBox + '-' + CurrentSubBox,
+                            isbn: Scan_Book_Array[j].isbn,
+                            act: '捐出',
+                            photo: photo,
+                            'book(uz*R*id)': ret1.id
+                        }
+                    }, function(ret2, err2) {
+                        if (ret2) {
+                            console.log(JSON.stringify(ret2));
+                            return callback('ok');
+                        } else {
+                            console.log(JSON.stringify(err2));
+                        }
+                    });
+                } else {
+                    console.log(JSON.stringify(err1));
+                }
+            });
+        } else { //还书入柜
+            query.createQuery(function(ret, err) {
+                if (ret && ret.qid) {
+                    var queryId = ret.qid;
+                    query.whereEqual({
+                        qid: queryId,
+                        column: "bid",
+                        value: Scan_Book_Array[j].bid
+                    });
+                    query.justFields({
+                        qid: queryId,
+                        value: ['id']
+                    });
+                    model.findAll({
+                        class: "book",
+                        qid: queryId
+                    }, function(data, error) {
+                        console.log(JSON.stringify(data));
+                        if (data[0]) {
+                            var returnbook_id = data[0].id;
+                            model.updateById({
+                                class: 'book',
+                                id: returnbook_id,
+                                value: {
+                                    price: set_price,
+                                    bookbox: CurrentBox,
+                                    subbox: CurrentSubBox,
+                                    seated: seated,
+                                    inbox: true
+                                }
+                            }, function(ret3, err3) {
+                                if (ret3) {
+                                    console.log(JSON.stringify(ret3));
+                                    model.updateById({
+                                        class: 'bookline',
+                                        id: Scan_Book_Array[j].id,
+                                        value: {
+                                            //bid: Scan_Book_Array[j].bid,
+                                            //user: userinfo.name,
+                                            //name: Scan_Book_Array[j].name,
+                                            price: set_price,
+                                            box2: CurrentBox + '-' + CurrentSubBox,
+                                            //isbn: Scan_Book_Array[j].isbn,
+                                            act2: '归还',
+                                            photo: photo,
+                                            'book(uz*R*id)': returnbook_id
+                                        }
+                                    }, function(ret4, err4) {
+                                        if (ret4) {
+                                            console.log(JSON.stringify(ret4));
+                                            return callback('ok');
+                                        } else {
+                                            console.log(JSON.stringify(err4));
+                                        }
+                                    });
+                                } else {
+                                    console.log(JSON.stringify(err3));
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function Select_Seated(db_price, s_price, callback) {
+        //var seated_random = Math.floor(Math.random() * getJsonObjLength(db_price.door[set_price])); //获得对应价格的要打开的柜子号码
+        var seated_random = Math.floor(Math.random() * db_price.door[set_price].length); //获得对应价格的要打开的柜子号码
+        console.log('seated_random = ' + seated_random);
+        return callback(db_price.door[s_price][seated_random]); //随机获取柜子门，需要修改
+    }
+
+    function printTap_openDoor() {
+        //var price = $api.byId('list_price').value; //得到用户定义的价格
+        Select_Seated(ScanSubbox_info, set_price, function(db_seat) {
+            seated = db_seat;
+            OneNet_Dev_command(OnetNet_devID, function(command) {
+                if (command) {
+                    var dialogBox = api.require('dialogBox');
+                    dialogBox.raffle({
+                        texts: {
+                            title: '最后一步',
+                            mainText: '将书放入打开的书柜中并关好柜门',
+                            subText: '系统将自动打开摄像头，将放入柜中的图书拍照留证',
+                            rightTitle: '知道了'
+                        },
+                        styles: {
+                            bg: '#fff',
+                            w: 320,
+                            title: {
+                                size: 16,
+                                color: '#000'
+                            },
+                            icon: {
+                                marginT: 5,
+                                w: 280,
+                                h: 280,
+                                iconPath: 'widget://image/bookatbox.png'
+                            },
+                            main: {
+                                marginT: 8,
+                                color: '#636363',
+                                size: 16
+                            },
+                            sub: {
+                                marginT: 8,
+                                color: '#999999',
+                                size: 15
+                            },
+                            right: {
+                                marginB: 5,
+                                marginL: 110,
+                                w: 100,
+                                h: 50,
+                                corner: 2,
+                                bg: '#fff',
+                                color: '#007FFF',
+                                size: 16
+                            }
+                        }
+                    }, function(ret, err) {
+                        if (ret) {
+                            console.log(JSON.stringify(ret));
+                            dialogBox.close({
+                                dialogName: 'raffle'
+                            });
+                            takeboxbookPhoto(function(ret3) {
+                                api.hideProgress();
+                                api.toast({
+                                    msg: '书籍入柜完成，谢谢你',
+                                    duration: 2000,
+                                    location: 'bottom'
+                                });
+                                setTimeout("closeWin();", "2500");
+                            });
+                        } else {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+                }
+            });
+        });
+    }
+    var nophoto = '59b3d2dadedceb172bb43451';
+
+    function takeboxbookPhoto(callback) {
+        api.showProgress({
+            title: '进度条',
+            text: '数据更新中...',
+            modal: true
+        });
+        api.getPicture({
+            sourceType: 'camera',
+            mediaValue: 'pic',
+            allowEdit: true,
+            quality: 80,
+            targetWidth: 500,
+            targetHeight: 500,
+            saveToPhotoAlbum: false
+        }, function(ret2, err2) {
+            console.log(JSON.stringify(ret2));
+            if (ret2.data) {
+                // UploadfrontCover(ret2.data);
+                model.uploadFile({
+                    report: false,
+                    data: {
+                        file: {
+                            name: 'evidence',
+                            url: ret2.data
+                        },
+                        values: {
+                            owner: userinfo.name,
+                            classify: 'bookintobox'
+                        }
+                    }
+                }, function(ret, err) {
+                    console.log(JSON.stringify(ret));
+                    if (ret) {
+                        //更新入库书籍数据库
+                        Book_data_into_db(ret.id, Scan_Book_Array, function(ret3) {
+                            return callback(ret3);
+                        });
+                    } else {
+                        console.log(JSON.stringify(err));
+                    }
+                });
+            } else {
+                console.log(JSON.stringify(err2));
+            }
+        });
+    }
+
+    function Manual_input_book(isbn) {
+        api.confirm({
+            title: 'oPPs :(',
+            msg: '未能在豆瓣库找到这本书，需要手动录入该书信息',
+            buttons: ['确定', '取消']
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret.buttonIndex == 1) {
+                openNewWindow('booklib', './booklib', '{"isbn":"' + isbn + '"}');
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        // var header = $api.byId('header');
+        // $api.fixStatusBar(header);
+        FNScanner = api.require('FNScanner');
+        //socketManager = api.require('socketManager');
+        query = api.require('query');
+        model = api.require('model');
+
+        get_base_info();
+        // if (logined == 'true') {
+        //     account = userinfo.name;
+        //     //  school = schoolinfo;
+        // }
+    };
+</script>
+
+</html>

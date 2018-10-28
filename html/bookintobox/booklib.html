@@ -1,0 +1,369 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav" id="aui-header">
+        <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">图书资料</div>
+    </header>
+
+    <div class="aui-card-list">
+        <div class="aui-card-list-header aui-card-list-user aui-border-b">
+            <div class="aui-card-list-user-name">
+                封面照片（点击拍摄书籍封面）
+            </div>
+        </div>
+        <div class="aui-card-list-content-padded" tapmode onclick="frontCover()">
+            <img id="frontcover" src="../../image/lib/libexample.jpg" style="width:8rem" />
+        </div>
+    </div>
+
+    <!-- <div class="aui-content-padded aui-border">
+        <div class="aui-info aui-margin-t-10 aui-padded-l-10 aui-padded-r-10" tapmode onclick="fnSetAvatar()">
+            <div class="aui-info-item">
+                <h2 class="aui-margin-l-5">封面照片</h2>
+            </div>
+            <div class="aui-info-item">
+                <img id="avatar" src="../../image/profile_default.png" style="width:2.5rem">
+            </div>
+        </div>
+    </div> -->
+
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">书籍的基本信息</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        ISBN码
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="isbn" type="number" readonly="readonly">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        书名
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="title" type="text" placeholder="书名">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        作者
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="author" type="text" placeholder="作者">
+                    </div>
+
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        价格
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="price" type="number" placeholder="Number">
+                    </div>
+
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        页数
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="pages" type="number" placeholder="Number">
+                    </div>
+
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        出版时间
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="pubdate" type="month" placeholder="Number">
+                    </div>
+                    <!-- <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="select_data()">选择</div> -->
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <!-- <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-home"></i>
+                    </div> -->
+                    <div class="aui-list-item-label">
+                        出版社
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='publisher' type="text" placeholder="出版社">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        简介
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea id='summary' placeholder="100字以内"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="updateBooklib()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="./js/gen_7bookid.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<!-- <script type="text/javascript" src="../../script/approvejs/approve.js"></script> -->
+<script type="text/javascript" src="../../script/validatorjs/validator.js"></script>
+
+<script type="text/javascript">
+    var model;
+    var newbook = {};
+    var toast = new auiToast();
+    // 作者author
+    // 出版时间pubdate
+    // 照片images
+    // isbn 价格price
+    // 简介summary
+    // 出版社publisher
+    // 页数pages
+
+    apiready = function() {
+        api.parseTapmode();
+        var header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        var headerPos = $api.offset(header);
+        api.parseTapmode();
+        var NBK = api.pageParam;
+        $api.val($api.byId('isbn'), NBK.isbn);
+        get_base_info();
+        model = api.require('model');
+    };
+
+    function updateBooklib() {
+
+        var title = validator.escape($api.val($api.byId('title'))); //书名title
+        var author = $api.val($api.byId('author')); // 作者author
+        var pubdate = $api.val($api.byId('pubdate')); // 出版时间pubdate
+        var images = newbook.img_id; // 照片images
+        var isbn = $api.val($api.byId('isbn')); // isbn
+        var price = $api.val($api.byId('price')); //价格price
+        var summary = $api.val($api.byId('summary')); // 简介summary
+        var publisher = $api.val($api.byId('publisher')); // 出版社publisher
+        var pages = $api.val($api.byId('pages')); // 页数pages
+
+        if (validator.isEmpty(title)) {
+            toast.fail({
+                title: "请填全书名信息!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(author)) {
+            toast.fail({
+                title: "请填全作者信息!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(price)) {
+            toast.fail({
+                title: "请填全价格信息!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(pages)) {
+            toast.fail({
+                title: "请填全页数信息!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(pubdate)) {
+            toast.fail({
+                title: "请填全出版时间!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(publisher)) {
+            toast.fail({
+                title: "请填全出版社信息!",
+                duration: 2000
+            });
+            return;
+        }
+        if (validator.isEmpty(summary)) {
+            toast.fail({
+                title: "请填全本书简介信息!",
+                duration: 2000
+            });
+            return;
+        }
+
+        if (newbook.img_id) {
+            var bkid = userinfo.schoolid + nid();
+            model.insert({
+                class: 'bookinfolib',
+                value: {
+                    title: title, //书名title
+                    author: author, // 作者author
+                    pubdate: pubdate, // 出版时间pubdate
+                    images: newbook.img_id, // 照片images
+                    isbn: isbn, // isbn
+                    price: price, //价格price
+                    summary: summary, // 简介summary
+                    publisher: publisher, // 出版社publisher
+                    pages: pages, // 页数pages
+                }
+            }, function(ret, err) {
+                if (ret) {
+                    console.log(JSON.stringify(ret));
+                    // {"id":"59a2fec8c44a796b761475e5","title":"刚刚非常","author":"放放歌","pubdate":"2017-08",
+                    // "isbn":"2548966","price":"88","summary":"吃v滚滚滚\n吃饭VB就。","publisher":"吃饭饭跟","pages":"55",
+                    // "createdAt":"2017-08-27T17:18:00.817Z","updatedAt":"2017-08-27T17:18:00.817Z","images":"59a2feacc44a796b761475e3"}
+                    var new_book = {
+                        "new": true,
+                        "bid": bkid,
+                        "name": ret.title,
+                        "isbn": ret.isbn,
+                        "price": ret.price,
+                        "pages": ret.pages,
+                        "bookfind": "Mylib"
+                    };
+                    api.execScript({
+                        name: 'bookintobox',
+                        frameName: 'bkintobox_frm',
+                        script: 'Scaned_Book_Add(' + JSON.stringify(new_book) + ');'
+                    });
+                    api.alert({
+                        title: 'OK',
+                        msg: '书籍信息添加成功，点击返回上一页!',
+                    }, function(ret, err) {
+                        closeWin();
+                    });
+                } else {
+                    console.log(JSON.stringify(err));
+                }
+            });
+        } else {
+            api.alert({
+                title: '注意',
+                msg: '需要拍摄书籍封面!',
+            }, function(ret, err) {});
+        }
+    }
+
+    // function select_data() {
+    //     api.openPicker({
+    //         type: 'date',
+    //         title: '出版时间'
+    //     }, function(ret, err) {
+    //         if (ret) {
+    //             console.log(JSON.stringify(ret));
+    //             // {"year":2016,"month":10,"day":27,"hour":0,"minute":59}
+    //             $api.val($api.byId('pubdate'), ret.year + '-' + ret.month + '-' + ret.day);
+    //         } else {
+    //             console.log(JSON.stringify(err));
+    //         }
+    //     });
+    // }
+
+    function frontCover() {
+        api.getPicture({
+            sourceType: 'camera',
+            mediaValue: 'pic',
+            allowEdit: true,
+            quality: 80,
+            targetWidth: 500,
+            targetHeight: 500,
+            saveToPhotoAlbum: false
+        }, function(ret2, err2) {
+            console.log(JSON.stringify(ret2));
+            if (ret2.data) {
+                UploadfrontCover(ret2.data);
+            } else {
+                console.log(JSON.stringify(err2));
+            }
+        });
+    }
+
+    function UploadfrontCover(avatarUrl) {
+        model.uploadFile({
+            report: false,
+            data: {
+                file: {
+                    name: 'frontcover',
+                    url: avatarUrl
+                },
+                values: {
+                    owner: userinfo.name,
+                    classify: 'bookinfolib'
+                }
+            }
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret) {
+                $api.byId('frontcover').src = ret.url;
+                newbook.img_id = ret.id;
+                newbook.img_url = ret.url;
+                $api.setStorage('newbook', newbook);
+                //在名为winName的window中找到名为frmName的frame，并在该frame中执行jsfun脚本
+                // api.execScript({
+                //     name: 'main',
+                //     frameName: 'my_frame',
+                //     script: 'update_avatar("' + ret.url + '");'
+                // });
+
+                // model.updateById({
+                //     class: 'user',
+                //     id: userinfo.id,
+                //     value: {
+                //         avatar: ret.id
+                //     }
+                // }, function(ret2, err2) {
+                //     // if( ret2 ){ // alert( JSON.stringify( ret2 ) ); // }else{ // alert( JSON.stringify( err2 ) ); // }
+                // });
+                // api.imageCache({
+                //     url: ret.url
+                // }, function(ret3, err3) {
+                //     console.log(JSON.stringify(ret3));
+                //     //var url = ret.url;
+                // });
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+    }
+</script>
+
+</html>

@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="./css/aui.css" />
+</head>
+
+<body>
+    <header id="aui-header" class="aui-bar aui-bar-nav aui-bar-light">
+        欢迎你，学弟/学妹
+    </header>
+
+    <div class="aui-card-list">
+        <div class="aui-card-list-content-padded">
+            <img src="./image/index.png" />
+        </div>
+        <div class="aui-card-list-footer aui-border-t">
+            <section class="aui-grid aui-margin-b-5">
+                <div class="aui-row">
+                    <div class="aui-col-xs-6">
+                        <div class="aui-btn  aui-btn-info aui-btn-primary aui-btn-outlined" tapmode onclick="letmesee()"><span class="aui-iconfont aui-icon-display"></span>转转/看看</div>
+                    </div>
+                    <div class="aui-col-xs-6">
+                        <div class="aui-btn  aui-btn-info aui-btn-success aui-btn-outlined" tapmode onclick="login_reg()"><span class="aui-iconfont aui-icon-edit"></span>登录/注册</div>
+                    </div>
+                    <div class="aui-col-xs-6">
+                        <div class="aui-btn  aui-btn-info aui-btn-success aui-btn-outlined" tapmode onclick="help()"><span class="aui-iconfont aui-icon-question"></span>简介/帮助</div>
+                    </div>
+                    <div class="aui-col-xs-6">
+                        <div class="aui-btn  aui-btn-info aui-btn-success aui-btn-outlined" tapmode onclick="joinus()"><span class="aui-iconfont aui-icon-my"></span>加入/我们</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <section class="aui-content-padded">
+    </section>
+    <footer class="aui-bar aui-bar-tab" id="footer">
+        <div class="aui-text-info  aui-text-center">
+            <p>淮阴工学院创客实验室作品 2016-2017</p>
+            <p>教材循环，互惠互利！目前捐书/取书均为免费。</p>
+        </div>
+    </footer>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/aui-slide.js"></script>
+<script type="text/javascript" src="./script/account.js"></script>
+<script type="text/javascript">
+    // var slide3 = new auiSlide({
+    //         container: document.getElementById("aui-slide3"),
+    //         //"width":550,
+    //         "height": 360,
+    //         "speed": 500,
+    //         "autoPlay": 3000, //自动播放
+    //         "loop": true,
+    //         "pageShow": true,
+    //         "pageStyle": 'line',
+    //         'dotPosition': 'center'
+    //     })
+    //console.log(slide3.pageCount());
+    function login_reg() {
+        // if (logined == 'true') {
+        openNewWindow('login', './html/userlogin/login_win');
+        // } else {
+        //     openNewWindow('login', './html/userlogin/regform_win');
+        // }
+    }
+
+    function letmesee() {
+        openNewWindow('main', './html/index')
+    }
+
+    function help() {
+        var dialogBox = api.require('dialogBox');
+        dialogBox.scene({
+            rect: {
+                w: 300,
+                h: 450
+            },
+            texts: {
+                title: '使用帮助',
+                content: '    知识点：如果你不从学校教材库领取新教材，到毕业时，学校将全额退还预收的教材费！\n    我们的智能书柜使用简单，首先找到校园布点的书柜，下载APP，完成注册',
+                okBtnTitle: '确定'
+            },
+            styles: {
+                bg: '#fff',
+                title: {
+                    bg: '#aaa',
+                    h: 44,
+                    size: 14,
+                    color: '#000'
+                },
+                sceneImg: {
+                    h: 150,
+                    path: 'widget://image/index_2.png'
+                },
+                content: {
+                    color: '#111',
+                    size: 12
+                },
+                cell: {
+                    bg: '#fff',
+                    h: 48,
+                    text: {
+                        color: '#636363',
+                        size: 13
+                    },
+                    icon: {
+                        marginL: 15,
+                        marginT: 9,
+                        w: 30,
+                        h: 30,
+                        corner: 2
+                    }
+                },
+                ok: {
+                    bg: '#89a',
+                    titleColor: '#f00'
+                }
+            },
+            optionDatas: [{
+                text: '1、捐书：APP放书入柜->扫描书柜二维码->定价->扫描书籍ISBN码->柜门打开将书放入->拍照完成'
+            }, {
+                text: '2、取书：APP取书出柜->扫描书柜二维码->找到想要的书->点击->取出并关好柜门'
+            }, {
+                text: '3、还书：等同于1'
+            }]
+        }, function(ret, err) {
+            if (ret) {
+                // alert(JSON.stringify(ret));
+                dialogBox.close({
+                    dialogName: 'scene'
+                });
+            } else {
+                //alert(JSON.stringify(err));
+            }
+        });
+    }
+
+    function joinus() {
+
+        var dialogBox = api.require('dialogBox');
+        dialogBox.alert({
+            texts: {
+                title: 'WELCOME',
+                content: '如果感兴趣我们的项目，发送简历到 xmilder@163.com  >>',
+                leftBtnTitle: '取消',
+                rightBtnTitle: '确认'
+            },
+            styles: {
+                bg: '#fff',
+                w: 300,
+                title: {
+            marginT: 20,
+            icon: 'widget://image/empty_page_nothing.png',
+            iconSize: 40,
+            titleSize: 14,
+            titleColor: '#000'
+        },
+                content: {
+                    color: '#000',
+                    size: 14
+                },
+                left: {
+                    marginB: 7,
+                    marginL: 20,
+                    w: 130,
+                    h: 35,
+                    corner: 2,
+                    bg: '#e0e',
+                    size: 12
+                },
+                right: {
+                    marginB: 7,
+                    marginL: 10,
+                    w: 130,
+                    h: 35,
+                    corner: 2,
+                    bg: '#e0e',
+                    size: 12
+                }
+            }
+        }, function(ret) {
+            dialogBox.close({
+                dialogName: 'alert'
+            });
+        });
+    }
+    
+	var umeng;
+    apiready = function() {
+        api.parseTapmode();
+        umengAnalytics();
+        // 开始统计
+    	onPageStart();
+        var header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        //数据库模块全局配置
+        model = api.require('model');
+        model.config({
+            appKey: appKey,
+            host: 'https://d.apicloud.com'
+        });
+
+        get_base_info();
+
+        if (logined == 'true') {
+            openNewWindow('main', './html/index');
+        };
+    };
+    
+     function umengAnalytics(){
+        
+         //如在 config.xml 配置了key和channel，则调用本方法可忽略appid和path参数
+umeng = api.require('umengTJ'); //调用统计模块初始化，一般在app首页面调用
+umeng.init({
+    // appid:'56eba8b4e0f55acc430000a1',
+    // path:'iosapp'
+}, function(ret, err) { //通过 config.xml 配置appid
+    if (ret.status) {
+        alert(JSON.stringify(ret));
+    } else {
+        alert(JSON.stringify(err));
+    }
+});
+        
+        }
+        
+        // 点击界面中的返回按钮(图标)时结束自定义页面统计
+function closeWin(){
+    onPageEnd();
+    api.closeWin();
+}
+
+// 开始统计
+function onPageStart(){
+    api.addEventListener({
+        name:'viewappear'
+    }, function(ret, err){
+        // 此处建议用异步接口
+        umeng.onPageStart({
+    pagename: 'main',
+}, function(ret, err) {
+    if (ret) {
+        console.log('开始统计“列表页”页面');
+    } else {
+        alert(JSON.stringify(err));
+    }
+});
+    });
+
+    // iOS手势关闭页面时结束自定义页面统计
+    api.addEventListener({
+        name:'viewdisappear'
+    },function(ret,err){
+        onPageEnd();
+    });
+
+    // Android按返回键关闭页面时结束自定义页面统计
+    api.addEventListener({
+        name:'keyback'
+    },function(ret,err){
+        closeWin();
+    });
+}
+
+// 结束统计
+function onPageEnd(){
+    // 此处建议用同步接口
+    var ret = umengAnalytics.onPageEndSync({
+        pageName: '列表页'
+    });
+    if(ret.status){
+        console.log('结束统计“列表页”页面');
+    }else{
+        console.log(ret.code+' '+ret.msg);
+    }
+}
+</script>
+
+</html>

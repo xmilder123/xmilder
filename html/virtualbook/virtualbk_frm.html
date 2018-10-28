@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <!-- <section class="aui-content">开发中....</section> -->
+    <!-- <div class="aui-searchbar" id="search">
+        <div class="aui-searchbar-input aui-border-radius">
+            <i class="aui-iconfont aui-icon-search"></i>
+            <input type="search" placeholder="请输入搜索内容" id="search-input">
+            <div class="aui-searchbar-clear-btn">
+                <i class="aui-iconfont aui-icon-close"></i>
+            </div>
+        </div>
+        <div class="aui-searchbar-btn" tapmode>取消</div>
+    </div> -->
+
+    <section class="aui-content">
+        <ul class="aui-list aui-list-in">
+            <li id='newbooklist' class="aui-list-header">
+                资料列表
+            </li>
+        </ul>
+        <ul id="booklist_area" class="aui-list aui-list-in">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li class="aui-list-item" tapmode onclick="openBookInfo('{{= value.id}}','{{= value.dataname}}','{{= value.price}}','{{= value.summy}}')">
+                    <div class="aui-list-item-inner  aui-list-item-arrow">
+                        <div class="aui-list-item-title">《{{= value.dataname}}.{{= value.datacalss}}》 @{{= value.relcourse}} ￥{{= value.price}}</div>
+                        <div class="aui-list-item-right"></div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    function openBookInfo(id, bid, name, price, isbn, bookbox, bookfind) {
+        var book = {};
+        book.action = "newinbox";
+        book.id = id;
+        book.bid = bid;
+        book.name = name;
+        book.price = price;
+        book.isbn = isbn;
+        book.bookbox = bookbox;
+        book.bookfind = bookfind;
+
+        api.openWin({
+            name: 'bookinfo',
+            url: '../bookinfo/bookinfo.html',
+            pageParam: book,
+            bounces: false,
+            opaque: false
+        });
+    }
+
+    function vbooklist(bk_text) {
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+                query.whereStartWith({
+                    qid: queryId,
+                    column: 'school',
+                    value: schoolinfo.id
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "public",
+                    value: true
+                });
+                if(api["pageParam"]["name"]!=undefined){
+                  alert(api["pageParam"]["name"]);
+                  query.whereLike({
+                      qid: queryId,
+                      column: "datacalss",
+                      value: api["pageParam"]["name"]
+                  });
+                }
+
+                // query.whereLike({
+                //     qid: queryId,
+                //     column: 'name',
+                //     value: bk_text
+                // });
+                query.limit({
+                    qid: queryId,
+                    value: 100
+                });
+                query.desc({
+                    qid: queryId,
+                    column: 'updatedAt'
+                });
+                // query.justFields({
+                //     qid: queryId,
+                //     value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'bookfind']
+                // });
+                model.findAll({
+                    class: "studatum",
+                    qid: queryId
+                }, function(data, err) {
+                    console.log(JSON.stringify(data));
+                    if (data) {
+                        var templateText = $api.byId('booklist_tmp').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId("booklist_area").innerHTML = dot(data);
+                        //$api.byId('list').innerHTML = dot(res);
+                    } else {
+                        //alert(JSON.stringify(error));
+                    }
+                });
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        query = api.require('query');
+        model = api.require('model');
+        get_base_info();
+        if (logined == 'true') {
+            vbooklist('bk_text');
+
+            // $api.byId('newbooklist').innerHTML = schoolinfo.name + '搜索结果';
+            //search_dialog();
+        }
+    };
+
+</script>
+
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>底部</title>
+    <link rel="stylesheet" type="text/css" href="./css/aui.2.0.css" />
+</head>
+
+<body>
+
+    <header class="aui-bar aui-bar-nav" id="aui-header">顶部导航栏</header>
+
+
+    <footer class="aui-bar aui-bar-tab" id="footer">
+        <div id="tabbar1" class="aui-bar-tab-item aui-active" tapmode onclick="randomSwitchBtn(this,'首页',0)">
+            <i class="aui-iconfont aui-icon-home"></i>
+            <div class="aui-bar-tab-label">首页</div>
+        </div>
+        <div id="tabbar2" class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn(this,'未接',1)">
+            <i class="aui-iconfont aui-icon-phone"></i>
+            <div class="aui-bar-tab-label">未接</div>
+        </div>
+        <div id="tabbar3" class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn(this,'已结',2)">
+            <i class="aui-iconfont aui-icon-cart"></i>
+            <div class="aui-bar-tab-label">已结</div>
+        </div>
+        <div id="tabbar4" class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn(this,'呼出',3)">
+
+            <i class="aui-iconfont aui-icon-my"></i>
+            <div class="aui-bar-tab-label">呼出</div>
+        </div>
+        <div id="tabbar5" class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn(this,'挂断',4)">
+
+            <i class="aui-iconfont aui-icon-my"></i>
+            <div class="aui-bar-tab-label">挂断</div>
+        </div>
+    </footer>
+
+
+
+
+</body>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        api.parseTapmode();
+        var header = $api.byId('aui-header');
+        var footer = 　$api.byId('footer')
+        $api.fixStatusBar(header);
+        var headerPos = $api.offset(header);
+        var body_h = api.winHeight;
+        var footer_h = $api.offset(footer).h;
+
+        api.openFrameGroup({
+            name: 'footer_tab_demo',
+            scrollEnabled: true,
+            rect: {
+                x: 0,
+                y: headerPos.h,
+                w: 'auto',
+                h: body_h - headerPos.h - footer_h
+            },
+            index: 0,
+            preload: 3,
+            frames: [{
+                name: 'main',
+                url: 'html/main.html',
+                bounces: false
+            }, {
+                name: 'footer_tab_2',
+                url: 'html/footer_tab_2.html',
+                bounces: false
+            }, {
+                name: 'footer_tab_3',
+                url: 'html/footer_tab_3.html',
+                bounces: false
+            }, {
+                name: 'footer_tab_4',
+                url: 'html/footer_tab_4.html',
+                bounces: false
+            }, {
+                name: 'footer_tab_5',
+                url: 'html/footer_tab_5.html',
+                bounces: false
+            }]
+        }, function(ret, err) {
+            var footer = $api.byId('footer');
+            var footerAct = $api.dom(footer, '.aui-bar-tab-item.aui-active');
+            $api.removeCls(footerAct, 'aui-active');
+
+            var name = ret.name;
+            var index = ret.index;
+            if (index == 0) {
+                $api.text($api.byId('aui-header'), '首页');
+                $api.addCls($api.byId('tabbar1'), 'aui-active');
+            } else if (index == 1) {
+                $api.text($api.byId('aui-header'), '未接');
+                $api.addCls($api.byId('tabbar2'), 'aui-active');
+            } else if (index == 2) {
+                $api.text($api.byId('aui-header'), '已结');
+                $api.addCls($api.byId('tabbar3'), 'aui-active');
+            } else if (index == 3) {
+                $api.text($api.byId('aui-header'), '呼出');
+                $api.addCls($api.byId('tabbar4'), 'aui-active');
+
+            } else if (index == 4) {
+                $api.text($api.byId('aui-header'), '挂断');
+                $api.addCls($api.byId('tabbar5'), 'aui-active');
+            }
+        })
+    }
+
+    function closeWin() {
+        api.closeWin();
+    }
+
+    function randomSwitchBtn(obj, name, index) {
+        $api.text($api.byId('aui-header'), name);
+        var footer = $api.byId('footer');
+        var footerAct = $api.dom(footer, '.aui-bar-tab-item.aui-active');
+        $api.removeCls(footerAct, 'aui-active');
+        $api.addCls(obj, 'aui-active');
+        api.setFrameGroupIndex({
+            name: 'footer_tab_demo',
+            index: index,
+            scroll: true
+        });
+
+    }
+</script>
+
+</html>

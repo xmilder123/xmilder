@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <section class="aui-content">
+        <div id="booklist_area" class="aui-card-list">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                <div class="aui-card-list-content-padded">
+                    <div class="aui-list-item-media" style="width:10rem">
+                        <img src="{{=it.images.large}}" />
+                    </div>
+                    <p>作者:{{=it.author}}</p>
+                    <p>出版社:{{=it.publisher}}</p>
+                    <p>出版年:{{=it.pubdate}}</p>
+                    <p>定价:{{=it.price}}</p>
+                    <p>内容简介:{{=it.summary}}</p>
+                </div>
+
+            </script>
+            <!-- <script id="errormsg" type="text/x-dot-template">
+            </script> -->
+        </div>
+    </section>
+    <section class="aui-content">
+        <div id="action" class="aui-card-list-footer">
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+
+<script type="text/javascript">
+    var CurrentBox; //书柜名称 hyit003
+    var CurrentSubBox; //集群书柜序号 0 1 2 。。。
+    var seated; //门的编号
+    var bkid;
+    var book_name;
+    var book_isbn;
+    var book_price;
+    var book;
+    var dialog = new auiDialog();
+    var p;
+
+    function AddintoMycart() {
+        console.log('addmylist');
+        var relation = api.require('relation');
+        relation.insert({
+            class: 'user',
+            id: userinfo.id,
+            column: 'R_cart',
+            value: {
+                username: userinfo.name,
+                title: book.name,
+                P_list: book.id,
+                bid: book.bid,
+                price: book.price,
+                isbn: book.isbn,
+                bookbox: book.bookbox
+                    // ,
+                    // bookfind: book.bookfind
+            }
+        }, function(ret, err) {
+            if (ret) {
+                console.log(JSON.stringify(ret));
+                alert('加入成功');
+                closeWin();
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+    }
+
+    function openDoor() {
+        OneNet_Dev_command(OnetNet_devID, function(ret) {
+            if (ret) {
+                model.updateById({
+                    class: 'book',
+                    id: book.id,
+                    value: {
+                        inbox: false
+                    }
+                }, function(ret, err) {
+                    console.log(JSON.stringify(ret));
+                    if (ret) {
+                        model.insert({
+                            class: 'bookline',
+                            value: {
+                                bid: book.bid,
+                                user: userinfo.name,
+                                name: book.name,
+                                price: book.price,
+                                isbn: book.isbn,
+                                box: CurrentBox + '-' + CurrentSubBox,
+                                act: '取出',
+                                'book(uz*R*id)': ret.id
+                            }
+                        }, function(ret1, err1) {
+                          console.log(JSON.stringify(ret1));
+                            if (!err1) {
+                                //在名为winName的window中执行脚本
+                                var Taked_Book_Del = 'Taked_Book_Del("' + book.id + '");';
+                                api.execScript({
+                                    name: 'takeoutbook',
+                                    frameName: 'takebk_frm',
+                                    script: Taked_Book_Del
+                                });
+
+                                dialog.alert({
+                                    title: "书籍取出",
+                                    msg: '1.请从打开的柜门中取出书\r\n2.用完可以将其存回到书柜中\r\n',
+                                    buttons: ['确定']
+                                }, function(ret2) {
+                                    closeWin();
+                                });
+                            } else {
+                                console.log(JSON.stringify(err1));
+                            }
+                        });
+                    }
+                });
+            } else {
+                alert('书柜通信出现错误！');
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        query = api.require('query');
+        model = api.require('model');
+        book = api.pageParam;
+        get_base_info();
+
+        // if (book.bookfind == 'mylib') {
+        //     //
+        // } else {
+        Douban_Api_Isbn(book.isbn, 'images,author,publisher,pubdate,price,summary', function(data, find) {
+            if (data) {
+                //console.log(JSON.stringify(data));
+                var templateText = $api.byId('booklist_tmp').innerHTML;
+                var dot = doT.template(templateText);
+                $api.byId("booklist_area").innerHTML = dot(data);
+            } else {
+                alert(JSON.stringify("未能找到这本书的信息，你可以求助客服"));
+            }
+        });
+        // }
+
+        switch (book.action) {
+            case 'newinbox':
+                console.log('执行代码块 newinbox');
+                var payhtml = '<div id="pay" class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="AddintoMycart()">';
+                payhtml += '加入我的预约单</div>';
+                $api.byId('action').innerHTML = payhtml;
+                break;
+
+            case 'takeoutbook':
+                console.log('执行代码块 bookintobox');
+                CurrentBox = book.bookbox;
+                CurrentSubBox = book.subbox;
+                seated = book.seated;
+                bboxListjson(book.bookbox);
+                var payhtml = '<div id="pay" class="aui-btn aui-btn-danger aui-btn-block" tapmode onclick="openDoor()">';
+                payhtml += '我要取书</div>';
+                $api.byId('action').innerHTML = payhtml;
+                break;
+
+            case 'compusbook':
+                console.log('执行代码块 compusbook');
+                break;
+            default:
+                console.log('执行代码块 default');
+        }
+    }
+</script>
+
+</html>

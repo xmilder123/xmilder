@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <!-- <div class="aui-label aui-label-outlined"><i class="aui-iconfont aui-icon-my"></i> 线条样式的标签</div> -->
+    <div id="user_info" class="aui-ellipsis-1 aui-font-size-16 aui-padded-l-15"> 请先登录帐号
+    </div>
+    <section class="aui-grid aui-margin-b-15">
+        <div class="aui-row">
+            <div class="aui-col-xs-4" tapmode onclick="Customservice()">
+                <i class="iconfont icon-kefu"></i>
+                <div class="aui-grid-label">求助客服</div>
+            </div>
+
+            <div class="aui-col-xs-4" tapmode onclick="openNewWindow('boxlistmap','boxlistmap/index')">
+          <!--      <div class="aui-badge">3</div>-->
+                <i class="iconfont icon-fujin01"></i>
+                <div class="aui-grid-label">附近书柜</div>
+            </div>
+            <div class="aui-col-xs-4" tapmode onclick="UseropenNewWindow('lose1','lose1/index')">
+              <!--  <div class="aui-badge">5</div>-->
+                <i class="iconfont icon-guidang"></i>
+                <div class="aui-grid-label">失物招领</div>
+            </div>
+            <div class="aui-col-xs-4" tapmode onclick="UseropenNewWindow('bookintobox','bookintobox/index')">
+                <div class="aui-dot"></div>
+                <i class="iconfont icon-fangrushujia"></i>
+                <div class="aui-grid-label">放书入柜</div>
+            </div>
+            <div class="aui-col-xs-4" tapmode onclick="UseropenNewWindow('takeoutbook','takeoutbook/index')">
+                <div class="aui-dot"></div>
+                <i class="iconfont icon-shu"></i>
+                <div class="aui-grid-label">取书出柜</div>
+            </div>
+            <div class="aui-col-xs-4" tapmode onclick="fnbookcrossing()">
+                <!-- <div class="aui-badge" id="newbooknumber">30</div> -->
+                <i class="iconfont icon-xunshu"></i>
+                <div class="aui-grid-label">图书漂流</div>
+            </div>
+        </div>
+    </section>
+    <!-- <p>第一次捐书入柜，请在书本内封一页面，手工写上 “大师兄(姐)：你的用户名(你的留言)”。</p>
+        <p>取出的书再次入柜，请在书本内封一页面，依次写上 “二师兄(姐)：你的用户名(你的留言)”。</p>
+        <p>有问题或者建议，请在APP内客服给我们留言。</p> -->
+    <section class="aui-grid">
+        <div class="aui-row">
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('introduce','introduce/index')">
+                <i class="iconfont icon-jieshao1"></i>
+                <div class="aui-grid-label">项目介绍</div>
+            </div>
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('newinbox','newinbox/index')">
+        <!--        <div class="aui-badge" id="newbooknumber">30</div>-->
+                <i class="iconfont icon-xinpin"></i>
+                <div class="aui-grid-label">入柜新书</div>
+            </div>
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('doubansearch','doubansearch/index')">
+                <i class="iconfont icon-douban01"></i>
+                <div class="aui-grid-label">豆瓣神器</div>
+            </div>
+            <!-- <div class="aui-col-xs-3">
+                <i class="iconfont icon-xunshu"></i>
+                <div class="aui-grid-label">群发找书</div>
+            </div> -->
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('letuschat','letuschat/index')">
+                <i class="iconfont icon-1"></i>
+                <div class="aui-grid-label">大家聊聊</div>
+            </div>
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('compusbook','compusbook/index')">
+                <i class="iconfont icon-shijian"></i>
+                <div class="aui-grid-label">校内寻书</div>
+            </div>
+            <div class="aui-col-xs-3" tapmode onclick="openNewWindow('booktrip','booktrip/index')">
+                <i class="iconfont icon-shu1"></i>
+                <div class="aui-grid-label">书籍脉络</div>
+            </div>
+            <div class="aui-col-xs-3">
+   <!--             <div class="aui-badge">10</div>-->
+                <i class="iconfont icon-laixin1"></i>
+                <div class="aui-grid-label">校内需求</div>
+            </div>
+            <div class="aui-col-xs-3">
+                <i class="iconfont icon-ganxie"></i>
+                <div class="aui-grid-label">排行榜单</div>
+            </div>
+        </div>
+    </section>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/account.js"></script>
+<script type="text/javascript">
+    var zhichi, param;
+    var query;
+    var model;
+    var mq;
+
+    function Customservice() {
+        mq.show();
+    }
+    // function openDoubanFrame() {
+    //     api.openFrame({
+    //         name: 'mydouban',
+    //         url: 'https://book.douban.com',
+    //         rect: {
+    //             x: 0,
+    //             y: pageParam.Y,
+    //             w: 'auto',
+    //             h: pageParam.H
+    //         },
+    //         bounces: false,
+    //         opaque: false
+    //             // vScrollBarEnabled:false,
+    //             // hScrollBarEnabled:false
+    //     });
+    // }
+
+    var pageParam;
+    apiready = function() {
+        api.parseTapmode();
+        pageParam = api.pageParam;
+        //alert(JSON.stringify(pageParam));
+        // fnInitEventListenner();
+        // startlogin();
+        //fnjudge();
+        //fnNewbookbadge();
+        //zhichi = api.require('zhiChi');
+        model = api.require('model');
+        query = api.require('query');
+        //创建美洽
+        mq = api.require('meiQia');
+
+        get_base_info();
+        if (logined == 'true') {
+            $api.byId('user_info').innerHTML = '你好' + userinfo.name + '，您已成功登录';
+
+
+            //配置初始化美洽需要的appkey
+            var mqparam = {
+                appkey: "581a4d2500a3ca9945ab9fa04a5d5183"
+            };
+            //初始化美洽
+            mq.initMeiQia(mqparam, function(ret, err) {
+                console.log(JSON.stringify(ret) + JSON.stringify(err));
+                if (ret) {
+                    //初始化成功
+                    //设置用户信息
+                    var infoParam = {
+                        name: userinfo.name,
+                        email: userinfo.email,
+                        comment: "淮阴工学院",
+                        // avatar: "https://app.meiqia.com/images/logo.png",
+                        tags: ["APP建议", "使用疑问"]
+                    };
+                    mq.setClientInfo(infoParam);
+                } else {
+                    //初始化失败
+                    console.log(JSON.stringify(err));
+                }
+            });
+        }
+    };
+
+    function fnchangenewbookNum(number_) {
+        var newbooknumber = $api.byId('newbooknumber');
+        newbooknumber.innerHTML = number_;
+    }
+
+    function fnNewbookbadge() {
+        var NewbookNum = $api.getStorage('NewbookNum');
+        if (NewbookNum) {
+            newbooknumber.innerHTML = NewbookNum;
+        }
+    }
+
+    // 图书漂流
+    function fnbookcrossing() {
+        api.prompt({
+            title: '图书漂流站',
+            msg: '将自己读完的书放在特定地点，任何人可取走阅读，读完后再将其放回让下一位爱书人阅读，继续一段漂流书香。',
+            text: '图书漂流：让知识因传播而美丽',
+            buttons: ['我要存书', '我要取书']
+        }, function(ret, err) {
+            //console.log(ret.buttonIndex);
+            //console.log(ret.text);
+            switch (ret.buttonIndex) {
+                case 1:
+                    UseropenNewWindow('bookintobox', 'bookintobox/index');
+                    break;
+                case 2:
+                    UseropenNewWindow('takeoutbook', 'takeoutbook/index');
+                    break;
+                default:
+            }
+            //openNewWindow('bookcrossing','bookcrossing/index');
+        });
+    }
+</script>
+
+</html>

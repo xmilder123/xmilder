@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <a class="aui-pull-left aui-btn">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">虚拟资料书柜</div>
+    </header>
+    <footer id="footer" class="aui-bar aui-bar-tab">
+        <div class="aui-bar-tab-item" tapmode style="width: 3rem;">
+            <i class="aui-iconfont aui-icon-comment aui-text-info"></i>
+            <div class="aui-bar-tab-label aui-text-info">咨询</div>
+        </div>
+        <div class="aui-bar-tab-item" tapmode style="width: 3rem;">
+            <i class="aui-iconfont aui-icon-star aui-text-warning"></i>
+            <div class="aui-bar-tab-label aui-text-warning">收藏</div>
+        </div>
+        <div class="aui-bar-tab-item aui-bg-warning aui-text-white" tapmode onclick="fnsearch()" style="width: auto;">搜索资料</div>
+        <div class="aui-bar-tab-item aui-bg-danger aui-text-white" tapmode onclick="openNewWindow('upload_win','./upload_win')" style="width: auto;">我要上传</div>
+    </footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<!-- <script type="text/javascript" src="../../script/aui-toast.js"></script> -->
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<!-- <script type="text/javascript" src="../../script/m2m.js"></script> -->
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+
+
+    function fnsearch() {
+      var character;
+      var dialogBox = api.require('dialogBox');
+  dialogBox.list({
+      tapClose: true,
+      texts: {
+          title: '学习资料',
+          enter: '提交'
+      },
+      listTitles: ['资料类型：'],
+      styles: {
+          bg: '#fff',
+          corner: 0,
+          w: 300,
+          h: 260,
+          title: {
+              h: 44,
+              size: 14,
+              color: '#000'
+          },
+          list: {
+              h: 128,
+              row: 1,
+              title: {
+                  marginL: 10,
+                  size: 14,
+                  color: '#696969'
+              },
+              content: {
+                  marginL: 10,
+                  size: 14,
+                  color: '#000'
+              }
+          },
+          dividingLine: {
+              width: 0.5,
+              color: '#696969'
+          },
+          enter: {
+              w: 135,
+              h: 55,
+              bg: '#e0e',
+              color: '#007FFF',
+              size: 12
+          }
+      }
+  }, function(ret) {
+//    api.alert({
+//        msg: JSON.stringify(ret)
+//    });
+      character=ret.amounts[0];
+       if (ret.eventType == 'enter') {
+          var dialogBox = api.require('dialogBox');
+          dialogBox.close({
+              dialogName: 'list'
+          });
+          api.openWin({
+              name: 'virtualbk_frm',
+              url: 'virtualbk_frm.html',
+              bounces: true,
+              pageParam: {
+               name: character
+            },
+            reload:true
+          })
+      }
+  });
+
+        // dialog.prompt({
+        //     title: "你想搜索的书",
+        //     text: '输入全名或包含的文字',
+        //     //type:'string',
+        //     buttons: ['取消', '确定']
+        // }, function(ret) {
+        //     //alert(JSON.stringify(ret));
+        //     if (ret.buttonIndex == 2) {
+        //         //booklist(ret.text);
+        //     }
+        // });
+        // console.log('open');
+    }
+
+    apiready = function() {
+        api.parseTapmode();
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+        var headerPos = $api.offset(header);
+        // var body_h = $api.offset($api.dom('body')).h;
+
+        var footer = $api.byId('footer');
+        var footerPos = $api.offset(footer);
+
+        // g_headerPos = headerPos.h;
+        g_frameHeight = api.frameHeight - headerPos.h - footerPos.h;
+
+        // console.log(body_h + "and" + g_frameHeight)
+        api.openFrame({
+            name: 'virtualbk_frm',
+            url: 'virtualbk_frm.html',
+            bounces: true,
+            rect: {
+                x: 0,
+                y: headerPos.h,
+                w: 'auto',
+                h: g_frameHeight
+            }
+        })
+    };
+
+    function closeWin() {
+        api.closeWin({});
+    }
+</script>
+
+</html>

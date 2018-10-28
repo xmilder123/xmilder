@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <title>title</title>
+        <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    </head>
+
+    <body>
+    </body>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript">
+        var now = Date.now();
+        var appKey = "005400FF-1E5B-90D8-32A0-341A295C0D12";
+        var model,query;
+        
+        apiready = function() {
+            model = api.require('model');
+            query = api.require('query');
+            model.config({
+                appKey: appKey,
+                host: 'https://d.apicloud.com'
+            });
+            api.parseTapmode();
+            fnGetUserInfo();
+        }
+
+        function fnGetUserInfo() {
+            var user = $api.getStorage('user');//得到登录人的姓名
+            query.createQuery(function(ret,err){
+                if (ret) {
+                var queryid = ret.qid;
+
+                query.whereEqual({
+                    qid:queryid,
+                    value:user,
+                    column:'username'
+                });
+
+                model.findAll({
+                    class: 'user',
+                    qid: queryid
+                },function(ret,err){
+                    if (ret) {
+                        alert(JSON.stringify(ret));
+                        fnUploadAtavar(ret);
+                    }
+                });
+                }
+            });
+        }
+    </script>
+
+</html>

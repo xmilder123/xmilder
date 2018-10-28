@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <!-- <div class="aui-content-padded aui-border">
+            <div class="aui-info aui-margin-t-10 aui-padded-l-10 aui-padded-r-10" tapmode onclick="fnSetAvatar()">
+                <div class="aui-info-item">
+                    <h2 class="aui-margin-l-5">头像</h2>
+                </div>
+                <div class="aui-info-item">
+                    <img id="icon" src="../../image/profile_default.png" style="width:2.5rem" class="aui-img-round">
+                </div>
+            </div>
+            <div class="aui-info aui-padded-l-10 aui-padded-r-10">
+                <div class="aui-info-item">
+                    <h2 class="aui-margin-l-5">二维码</h2>
+                </div>
+                <div class="aui-info-item">
+                    <img src="../../image/evening.jpg" style="width:2.5rem">
+                </div>
+            </div>
+        </div> -->
+
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">完善个人信息</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        手机号码
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" placeholder="Number">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        真实姓名
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="姓名">
+                    </div>
+                </div>
+            </li>
+
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        性别
+                    </div>
+                    <div class="aui-list-item-input">
+                        <label><input class="aui-radio" type="radio" name="demo1" checked>男</label>
+                        <label><input class="aui-radio" type="radio" name="demo1">女</label>
+                    </div>
+                </div>
+            </li>
+
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        民族
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="民族">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        籍贯
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="你来自哪里">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        身份证号
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="身份证号">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        所学专业
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="text" placeholder="专业名称">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        入学年月
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="month" placeholder="2017-9-1">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        所在班级
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" placeholder="班级">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        学号
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input type="number" placeholder="学号">
+                    </div>
+                </div>
+            </li>
+
+
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        学历
+                    </div>
+                    <div class="aui-list-item-input">
+                        <select>
+                                <option>专科/本科</option>
+                                <option>硕士研究生</option>
+                                <option>中专/高中</option>
+                            </select>
+                    </div>
+                </div>
+            </li>
+            <!-- <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">
+                            Switch
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="checkbox" class="aui-switch" checked>
+                        </div>
+                    </div>
+                </li> -->
+
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        个人介绍
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea placeholder="100字以内"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/mcm-js-sdk/SHA1.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var now = Date.now();
+    appKey = SHA1("A6933358370367" + "UZ" + "005400FF-1E5B-90D8-32A0-341A295C0D12" + "UZ" + now) + "." + now;
+
+    function reg() {
+        var account = $api.byId('account').value;
+        var password = $api.byId('password').value;
+        var passwordConfirm = $api.byId('password_confirm').value;
+        var email = $api.byId('email').value;
+        var userschool = $api.byId('school').value;
+        var toast = new auiToast();
+        //var phone_rule = /^1[0-9]{10}$/; //验证规则
+        //var flag = reg.test(phoneNum); //true
+        var regtype = /^[\u4E00-\u9FA5a-zA-Z0-9_]{3,16}$/;
+        //汉字 英文字母 数字 下划线组成，3-20位正则表达式
+        if (!regtype.test(account)) {
+            toast.fail({
+                title: "用户名由汉字/英文字母/数字/下划线组成，3-16位",
+                duration: 2000
+            });
+            return;
+        }
+        if (password.length < 6) {
+            toast.fail({
+                title: "密码最短需要 6 个字符",
+                duration: 2000
+            });
+            return;
+        }
+        if (passwordConfirm != password) {
+            toast.fail({
+                title: "密码两次输入不一致",
+                duration: 2000
+            });
+            return;
+        }
+        if (!checkEmail(email)) {
+            toast.fail({
+                title: "邮箱地址不合法",
+                duration: 2000
+            });
+            return;
+        }
+        if (userschool.length < 2) {
+            toast.fail({
+                title: "选择你所在学校",
+                duration: 2000
+            });
+            return;
+        }
+
+        user.register({
+            username: account,
+            password: password,
+            email: email
+        }, function(ret, err) {
+            if (ret) {
+                console.log(JSON.stringify(ret));
+                //{"createdAt":"2017-08-17T13:15:32.392Z","updatedAt":"2017-08-17T13:15:32.392Z","id":"599596f45205380e374e8cac","username":"许","email":"asd@163.com","credentials":[],"challenges":[]}
+                if (!ret.error) {
+                    toast.success({
+                        title: "注册成功！",
+                        duration: 2000
+                    });
+                    //偏好数据
+                    api.setPrefs({
+                        key: 'first_reg',
+                        value: schoolinfo.id
+                    });
+                    api.setPrefs({
+                        key: 'school',
+                        value: schoolinfo.name
+                    });
+                    //在名为winName的window中执行脚本
+                    var getaccount = 'get_account(\'' + account + '\');';
+                    api.execScript({
+                        name: 'login',
+                        script: getaccount
+                    });
+                    setTimeout("closeWin()", 3000);
+                } else if (ret.error.status == 202) {
+                    //{"error":{"name":"uniqueness","status":202,"message":"username:already exists","statusCode":202}}
+                    toast.fail({
+                        title: "该用户已存在",
+                        duration: 2000
+                    });
+                }
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+
+    };
+
+    apiready = function() {
+        api.parseTapmode();
+        get_base_info();
+    }
+
+
+
+    function fnSetAvatar() {
+        api.actionSheet({
+            title: '选择',
+            cancelTitle: '取消',
+            buttons: ['拍照', '相册']
+        }, function(ret, err) {
+            if (ret) {
+                var sourceTypes = [
+                    'camera',
+                    'album'
+                ];
+                api.getPicture({
+                    sourceType: sourceTypes[ret.buttonIndex - 1],
+                    allowEdit: true,
+                    quality: 50,
+                    targetWidth: 100,
+                    targetHeight: 100,
+                    saveToPhotoAlbum: false
+                }, function(ret, err) {
+                    if (ret) {
+                        //alert(JSON.stringify(ret));
+                        fnUploadAtavar(ret.data);
+                    } else {
+                        alert(JSON.stringify(err));
+                    }
+                });
+
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+
+    function fnUploadAtavar(avatarUrl_) {
+        api.ajax({
+            url: 'https://d.apicloud.com/mcm/api/file',
+            method: 'post',
+            headers: {
+                "X-APICloud-AppId": "A6933358370367",
+                "X-APICloud-AppKey": appKey
+            },
+            data: {
+                values: {
+                    filename: 'icon'
+                },
+                files: {
+                    file: avatarUrl_
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                fnUpdateUserAtavar(ret);
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+
+    function fnUpdateUserAtavar(avatar_) {
+        //var userInfo = $api.getStorage('userInfo');
+        api.ajax({
+            url: 'https://d.apicloud.com/mcm/api/user/' + userInfo.userId,
+            method: 'put',
+            headers: {
+                "X-APICloud-AppId": "A6933358370367",
+                "X-APICloud-AppKey": appKey,
+                "Authorization": userInfo.id
+            },
+            data: {
+                values: {
+                    avatar: avatar_
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                fnUpdateLocalAvatar(ret);
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+
+    function fnUpdateLocalAvatar(data_) {
+        var icon = $api.byId('icon');
+        if (!data_.avatar) {
+            return;
+        }
+        api.imageCache({
+            url: data_.avatar.url
+        }, function(ret, err) {
+            if (ret) {
+                icon.src = ret.url;
+                api.sendEvent({
+                    name: 'iconchange',
+                    extra: {
+                        currenticon: ret,
+                    }
+                });
+            } else {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+</script>
+
+</html>

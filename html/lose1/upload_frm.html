@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+    <!-- <section class="aui-content">开发中....</section> -->
+    <div class="aui-content aui-margin-b-15">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">信息输入</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        失物特征
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="dataname" type="text" placeholder="失物特征">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        失物信息说明
+                    </div>
+                    <div class="aui-list-item-input">
+                        <textarea id="dataexplain" placeholder="补充失物信息"></textarea>
+                    </div>
+                </div>
+            </li>
+
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label">
+                        选择失物图片
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id="filename" type="text" placeholder="资料文件名" readonly="readonly">
+                        <div class="aui-btn aui-btn-info aui-margin-r-5" onclick="fnfindfile()">选择文件</div>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" onclick="fnuploadmydatum()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/aui-range.js"></script>
+<script type="text/javascript" src="../../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript" src="../../script/validatorjs/validator.js"></script>
+<script type="text/javascript" src="../../script/ajaxToAPICoud.js"></script>
+<script type="text/javascript">
+    var selected_filename;
+//  var dataprice = 30;
+    var dataclass = '失物';
+    var dataname;
+    var dataexplain;
+    var filename;
+//
+//  var dialog = new auiDialog();
+//  var toast = new auiToast();
+//  var range = new auiRange({
+//      element: document.getElementById("range")
+//  }, function(ret) {
+//      document.getElementById("dataprice").textContent = ret.value;
+//      dataprice = ret.value;
+//  })
+    function fnfindfile() {
+
+        fileBrowser.open(function(ret, err) {
+            if (ret && ret.status) {
+                fileBrowser.close();
+                selected_filename = ret.url;
+                alert('你选择了' + ret.url); //console.log
+                // {status:true,url:}
+                var file_name = selected_filename.substring(selected_filename.lastIndexOf('/'));
+                $api.val($api.byId('filename'), file_name);
+            } else {
+                fileBrowser.close();
+                alert(JSON.stringify(err));
+            }
+        });
+ }
+    function fnuploadmydatum() {
+
+         dataname = validator.escape($api.val($api.byId('dataname')));
+         dataexplain = $api.val($api.byId('dataexplain'));
+         filename = $api.val($api.byId('filename'));
+
+        if (validator.isEmpty(dataname)) {
+            toast.fail({
+                title: "请填写失物类型!",
+                duration: 2000
+            });
+            return;
+        }
+           if (validator.isEmpty(dataexplain)) {
+               toast.fail({
+                   title: "请填写失物信息说明!",
+                   duration: 2000
+               });
+               return;
+           }
+           if (validator.isEmpty(filename)) {
+               toast.fail({
+                   title: "请选择失物图片!",
+                   duration: 2000
+               });
+               return;
+           }
+          uploadAndShow(selected_filename);
+          //  model.uploadFile({
+          //      report: true,
+          //      data: {
+          //          file: {
+          //              name: dataclass,
+          //              url: selected_filename
+          //          },
+          //          values: {
+          //              owner: userinfo.name,
+          //              classify: 'virtualbook'
+          //          }
+          //      }
+          //  }, function(ret, err) {
+          //      console.log(JSON.stringify(ret));
+          //      if (ret) {
+          //          switch (ret.state) {
+          //              case 0:
+          //                  api.showProgress({
+          //                      title: '资料上传中...',
+          //                      text: '进度 ' + ret.progress + '%',
+          //                  });
+          //                  break;
+          //              case 1:
+          //
+          //                  api.hideProgress();
+          //                  //alert('上传成功');
+          //                  model.insert({
+          //                      class: 'studatumlose',
+          //                      value: {
+          //                          owner: userinfo.name,
+          //                          type: dataname,
+          //                          information: dataexplain,
+          //                          //picture: selected_filename,
+          //                      }
+          //                  }, function(ret, err) {
+          //                      if (ret) {
+          //                          console.log(JSON.stringify(ret));
+          //                          api.alert({
+          //                              title: '虚拟书柜',
+          //                              msg: '资料上传完成',
+          //                          }, function(ret, err) {
+          //                              closeWin();
+          //                              api.openWin({
+          //                             name: 'virtualbk_frm',
+          //                             url: './virtualbk_frm',
+          //                             bounces: false,
+          //                             opaque: false
+          //                         });
+          //                          });
+          //                      } else {
+          //                          console.log(JSON.stringify(err));
+          //                      }
+          //                  });
+           //
+          //                  break;
+          //              case 2:
+          //                  api.hideProgress();
+          //                  alert('上传失败，检查网络再试一次');
+          //                  break;
+          //              default:
+           //
+          //          }
+          //      } else {
+          //          console.log(JSON.stringify(err));
+          //      }
+          //  });
+       }
+
+        function uploadAndShow(imgPath){
+            api.showProgress({
+                title: '正在上传...'
+            });
+
+            var method = "post";
+            var classInfo = {
+                className: "studatumlose",
+                fields: [
+                    {
+                        name: "picture",
+                        value: imgPath,
+                        type: "file",
+                        filename: "未命名"
+                    },{
+                      name: "owner",
+                      value: userinfo.name,
+                      type: "string"
+                    },{
+                      name: "type",
+                      value: dataname,
+                      type: "string"
+                    },{
+                      name: "information",
+                      value: dataexplain,
+                      type: "string"
+                    }
+                ]
+            }
+
+            var callback = function(ret, err){
+                api.hideProgress();
+                alert("上传成功");
+                api.closeWin();
+            }
+
+            ajaxToAPICloud(appId, appKey, method, classInfo, callback)
+        }
+       function search_dialog() {
+           dialog.prompt({
+               title: "你想搜索的书",
+               text: '输入全名或包含的文字',
+               //type:'string',
+               buttons: ['取消', '确定']
+           }, function(ret) {
+               //alert(JSON.stringify(ret));
+               if (ret.buttonIndex == 2) {
+                   //booklist(ret.text);
+               }
+           })
+       }
+
+       function openBookInfo(id, bid, name, price, isbn, bookbox, bookfind) {
+           var book = {};
+           book.action = "newinbox";
+           book.id = id;
+           book.bid = bid;
+           book.name = name;
+           book.price = price;
+           book.isbn = isbn;
+           book.bookbox = bookbox;
+           book.bookfind = bookfind;
+
+           api.openWin({
+               name: 'bookinfo',
+               url: '../bookinfo/bookinfo.html',
+               pageParam: book,
+               bounces: false,
+               opaque: false
+           });
+       }
+
+
+       function booklist(bk_text) {
+           query.createQuery(function(ret, err) {
+               if (ret && ret.qid) {
+                   var queryId = ret.qid;
+                   query.whereStartWith({
+                       qid: queryId,
+                       column: 'bid',
+                       value: schoolinfo.id
+                   });
+                   query.whereEqual({
+                       qid: queryId,
+                       column: "inbox",
+                       value: true
+                   });
+                   query.whereLike({
+                       qid: queryId,
+                       column: 'name',
+                       value: bk_text
+                   });
+                   query.limit({
+                       qid: queryId,
+                       value: 100
+                   });
+                   query.desc({
+                       qid: queryId,
+                       column: 'updatedAt'
+                   });
+                   query.justFields({
+                       qid: queryId,
+                       value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'bookfind']
+                   });
+                   model.findAll({
+                       class: "book",
+                       qid: queryId
+                   }, function(data, err) {
+                       if (data) {
+                           var templateText = $api.byId('booklist_tmp').innerHTML;
+                           var dot = doT.template(templateText);
+                           $api.byId("booklist_area").innerHTML = dot(data);
+                           //$api.byId('list').innerHTML = dot(res);
+                       } else {
+                           //alert(JSON.stringify(error));
+                       }
+                   });
+               }
+           });
+       }
+
+       var query;
+       var model;
+       var fileBrowser;
+
+       apiready = function() {
+           api.parseTapmode();
+           query = api.require('query');
+           model = api.require('model');
+           fileBrowser = api.require('fileBrowser');
+           get_base_info();
+           if (logined == 'true') {
+               // $api.byId('newbooklist').innerHTML = schoolinfo.name + '搜索结果';
+               //search_dialog();
+           }
+       };
+
+       function voiceSearch() {
+           var obj = api.require('speechRecognizer');
+           api.toast({
+               msg: "语音识别开始，请说话",
+               duration: 1000,
+               location: "middle"
+           });
+
+           obj.record({}, function(ret, err) {
+               if (ret.status) {
+                   // ret.wordStr;
+                   api.alert({
+                       title: "识别结果",
+                       msg: ret.wordStr
+                   })
+                   obj.stopRecord();
+               }
+           });
+       }
+</script>
+
+</html>

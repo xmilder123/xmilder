@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>设置</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav" id="aui-header">
+        <a class="aui-btn aui-pull-left" tapmode onclick="api.closeWin();">
+            <span class="aui-iconfont aui-icon-left"></span>
+        </a>
+        <div class="aui-title">设置</div>
+    </header>
+    <div class="aui-content aui-margin-t-15">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-item aui-list-item-middle" tapmode onclick="fnclearstorge();">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">清除缓存</div>
+                </div>
+            </li>
+            <li class="aui-list-item aui-list-item-middle" tapmode onclick="checkUpdate()">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">检查更新</div>
+                </div>
+            </li>
+            <li class="aui-list-item aui-list-item-middle">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">待定</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="aui-content aui-margin-t-15">
+        <ul class="aui-list aui-list-in">
+            <li class="aui-list-item aui-list-item-middle">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">待定</div>
+                </div>
+            </li>
+            <li class="aui-list-item aui-list-item-middle">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">待定</div>
+                </div>
+            </li>
+            <li class="aui-list-item aui-list-item-middle">
+                <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-title">待定</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="aui-content" tapmode onclick="fnLogout()">
+        <div class="aui-btn aui-btn-danger aui-btn-block">退出登录</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        api.parseTapmode();
+        var header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+    }
+
+    function fnclearstorge() {
+        // $api.clearStorage(function() {
+        //     api.toast({
+        //         msg: '清除完成'
+        //     });
+        // });
+    }
+
+    function fnLogout() {
+        api.confirm({
+            title: '提示',
+            msg: '是否退出登录？',
+            buttons: ['确定', '取消']
+        }, function(ret, err) {
+            console.log(JSON.stringify(ret));
+            if (ret.buttonIndex == 1) {
+                var user = api.require('user');
+                user.logout(function(ret1, err1) {
+                    console.log(JSON.stringify(ret1));
+                    if (ret1) {
+                        api.removePrefs({
+                            key: 'logined'
+                        });
+                        $api.rmStorage('userinfo');
+                        $api.rmStorage('schoolinfo');
+                        api.closeToWin({
+                            name: 'root'
+                        });
+                    } else {
+                        console.log(JSON.stringify(err1));
+                    }
+                });
+                // api.rebootApp();
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+    }
+
+    //http://docs.apicloud.com/Dev-Guide/version_update
+    //首先在项目代码config.xml中配置：
+    //<preference name="autoUpdate" value="false" />
+    function checkUpdate() {
+        var mam = api.require('mam');
+        mam.checkUpdate(function(ret, err) {
+            if (ret) {
+                var result = ret.result;
+                if (result.update == true && result.closed == false) {
+                    var str = '新版本型号:' + result.version + ';更新提示语:' + result.updateTip + ';下载地址:' + result.source + ';发布时间:' + result.time;
+                    api.confirm({
+                        title: '有新的版本,是否下载并安装 ',
+                        msg: str,
+                        buttons: ['确定', '取消']
+                    }, function(ret, err) {
+                        if (ret.buttonIndex == 1) {
+                            if (api.systemType == "android") {
+                                api.download({
+                                    url: result.source,
+                                    report: true
+                                }, function(ret, err) {
+                                    if (ret && 0 == ret.state) { /* 下载进度 */
+                                        api.toast({
+                                            msg: "正在下载应用" + ret.percent + "%",
+                                            duration: 2000
+                                        });
+                                    }
+                                    if (ret && 1 == ret.state) { /* 下载完成 */
+                                        var savePath = ret.savePath;
+                                        api.installApp({
+                                            appUri: savePath
+                                        });
+                                    }
+                                });
+                            }
+                            if (api.systemType == "ios") {
+                                api.installApp({
+                                    appUri: result.source
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    api.alert({
+                        msg: "暂无更新"
+                    });
+                }
+            } else {
+                api.alert({
+                    msg: err.msg
+                });
+            }
+        });
+    }
+</script>
+
+</html>

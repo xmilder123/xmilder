@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style type="text/css">
+        body {
+            text-align: center;
+        }
+
+        .btn-third-party {
+            display: inline-block;
+            width: auto;
+            height: 50px;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 8px 8px 8px 36px;
+            font-size: 20px;
+            color: #888;
+            line-height: 32px;
+            text-align: left;
+            border: 1px solid #aaa;
+            background-image: url(../../image/share/share_to_icon_qq.png);
+            background-repeat: no-repeat;
+            background-size: auto 28px;
+            background-position: 8px center;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav" id="aui-header">用户登录</header>
+    <div class="aui-content-padded aui-margin-b-15 aui-font-size-20">
+        <ul class="aui-list aui-form-list">
+            <li class="aui-list-header">快速登录</li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-mobile"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='account' type="text" placeholder="请输入用户名">
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-lock"></i>
+                    </div>
+                    <div class="aui-list-item-input">
+                        <input id='password' type="password" placeholder="请输入密码">
+                    </div>
+                    <div class="aui-list-item-label-icon">
+                        <i class="aui-iconfont aui-icon-display"></i>
+                    </div>
+                </div>
+            </li>
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                    <div class="aui-btn aui-btn-info aui-margin-r-5" tapmode onclick="login()">提交</div>
+                    <div class="aui-btn aui-btn-danger aui-margin-l-5" tapmode onclick="closeWin()">取消</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <section class="aui-grid aui-margin-b-5">
+        <div class="aui-row">
+            <div class="aui-col-xs-6">
+                <i class="aui-iconfont aui-icon-gear"></i>
+                <div class="aui-grid-label">忘记密码</div>
+            </div>
+            <div class="aui-col-xs-6" tapmode onclick="openNewWindow('reg','regform_win')">
+                <i class="aui-iconfont aui-icon-date"></i>
+                <div class="aui-grid-label">注册帐号</div>
+            </div>
+        </div>
+    </section>
+    <div class="btn-third-party" tapmode onclick="fnOpneQQ()">
+        使用QQ登录
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    var user;
+    var qq;
+
+    function login() {
+
+        var toast = new auiToast();
+
+        var account = $api.byId('account').value;
+        var password = $api.byId('password').value;
+
+        user.login({
+            username: account,
+            password: password
+        }, function(ret, err) {
+            if (ret) {
+                console.log(JSON.stringify(ret));
+                //{"createdAt":"2017-08-17T08:09:05.554Z","updatedAt":"2017-08-17T08:09:05.554Z",
+                //"id":"J1USr3Ck89pNv29WvZxoOfVv5RCPMLC78zMyV3OBHc3TAaoNXCFDtrNSFs78ofz9","ttl":1209600,"userId":"58dfc89c35196a2165aa95cf"}
+                toast.success({
+                    title: "登录成功！",
+                    duration: 2000
+                });
+                api.setPrefs({
+                    key: 'logined',
+                    value: 'true'
+                });
+                var first_reg = api.getPrefs({
+                    sync: true,
+                    key: 'first_reg'
+                });
+                if (first_reg) {
+                    var school_name = api.getPrefs({
+                        sync: true,
+                        key: 'school'
+                    });
+                    model.updateById({
+                        class: 'user',
+                        id: ret.userId,
+                        value: {
+                            school_ID: first_reg,
+                            school: school_name
+                        }
+                    }, function(ret2, err2) {
+                        if (ret2) {
+                            console.log(JSON.stringify(ret2));
+                            //  {"avatar":null,"deposit":null,"surplus":null,"Student_ID":null,"TureName":null,"school_ID":"10001","school":"淮阴工学院",
+                            //"createdAt":"2017-08-19T15:55:44.000Z","updatedAt":"2017-08-19T15:58:48.446Z","id":"59985f8021cc50f501a0568a","realm":null,
+                            //"username":"鹤顶红","mobile":null,"email":"asd@163.com","emailVerified":null,"verificationToken":null,"credentials":[],"challenges":[],"status":null}
+                            userinfo.id = ret2.id;
+                            userinfo.name = ret2.username;
+                            userinfo.email = ret2.email;
+                            userinfo.mobile = ret2.mobile;
+                            userinfo.avatar = ret2.avatar;
+                            userinfo.school = ret2.school;
+                            userinfo.schoolid = ret2.school_ID;
+                            userinfo.introduction = ret2.introduction;
+                            $api.setStorage('userinfo', userinfo);
+                            api.removePrefs({
+                                key: 'first_reg'
+                            });
+                            api.removePrefs({
+                                key: 'school'
+                            });
+                            openNewWindow('main', '../index');
+                        } else {
+                            console.log(JSON.stringify(err2));
+                        }
+                    });
+
+                } else {
+                    model.findById({
+                        class: 'user',
+                        id: ret.userId
+                    }, function(ret2, err2) {
+                        if (ret2) {
+                            console.log(JSON.stringify(ret2));
+                            //{"avatar":null,"deposit":null,"surplus":null,"Student_ID":null,"TureName":null,"school_ID":"10001","school":"淮阴工学院",
+                            //"createdAt":"2017-08-19T15:55:44.000Z","updatedAt":"2017-08-19T15:58:48.446Z","id":"59985f8021cc50f501a0568a","realm":null,
+                            //"username":"鹤顶红","mobile":null,"email":"asd@163.com","emailVerified":null,"verificationToken":null,"credentials":[],"challenges":[],"status":null}
+                            userinfo.id = ret2.id;
+                            userinfo.name = ret2.username;
+                            userinfo.email = ret2.email;
+                            userinfo.mobile = ret2.mobile;
+                            userinfo.avatar = ret2.avatar;
+                            userinfo.school = ret2.school;
+                            userinfo.schoolid = ret2.school_ID;
+                            userinfo.introduction = ret2.introduction;
+                            $api.setStorage('userinfo', userinfo);
+
+                            schoolinfo.id = ret2.school_ID;
+                            schoolinfo.name = ret2.school;
+                            $api.setStorage('schoolinfo', schoolinfo);
+                            openNewWindow('main', '../index');
+                        } else {
+                            console.log(JSON.stringify(err2));
+                        }
+                    });
+                }
+                // closeWin();
+                // api.sendEvent({
+                //     name: 'loginstate',
+                //     extra: {
+                //         islgoin: true,
+                //     }
+                // });
+            } else {
+                console.log(JSON.stringify(err)); //{"name":"Error","status":401,"message":"login failed","statusCode":401}
+                toast.fail({
+                    title: "用户名或密码错误！",
+                    duration: 2000
+                });
+            }
+        });
+
+    };
+    // var appKey = "005400FF-1E5B-90D8-32A0-341A295C0D12";
+    var query;
+    var model;
+    apiready = function() {
+        var header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        var headerPos = $api.offset(header);
+        api.parseTapmode();
+        user = api.require('user');
+        //qq = api.require('qq');
+        //initEventListener();
+        query = api.require('query');
+        model = api.require('model');
+    };
+
+    function fnOpneQQ() {
+        alert("暂未开放");
+        // qq.login(function(ret, err) {
+        //     api.alert({
+        //         title: 'id和token',
+        //         msg: ret.openId + ret.accessToken
+        //     });
+        // });
+    }
+
+    function get_account(acc) {
+        console.log(acc);
+        //同步返回结果：
+        $api.byId('account').value = acc;
+    };
+</script>
+
+</html>

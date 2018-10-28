@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <style>
+        body {}
+    </style>
+</head>
+
+<body>
+
+    <section class="aui-content">
+        <ul class="aui-list aui-list-in">
+            <li id='newbooklist' class="aui-list-header">
+                最新入柜书籍列表
+            </li>
+        </ul>
+        <ul id="booklist_area" class="aui-list aui-list-in">
+            <script id="booklist_tmp" type="text/x-dot-template">
+                {{~ it : value : index }}
+                <li class="aui-list-item" tapmode onclick="openBookInfo('{{= value.id}}','{{= value.bid}}','{{= value.name}}','{{= value.price}}','{{= value.isbn}}','{{= value.bookbox}}','{{= value.bookfind}}')">
+                    <div class="aui-list-item-inner  aui-list-item-arrow">
+                        <div class="aui-list-item-title">《{{= value.name}}》 ¥{{= value.price}} @{{= value.bookbox}}柜</div>
+                        <div class="aui-list-item-right"></div>
+                    </div>
+                </li>
+                {{~}}
+            </script>
+        </ul>
+    </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/doT.js"></script>
+<script type="text/javascript" src="../../script/aui-toast.js"></script>
+<script type="text/javascript" src="../../script/m2m.js"></script>
+<script type="text/javascript" src="../../script/account.js"></script>
+<script type="text/javascript">
+    // var locate;
+    // var bkid;
+    // var book_name;
+    // var book_isbn;
+    // var account;
+    // var school;
+
+    function openBookInfo(id, bid, name, price, isbn, bookbox, bookfind) {
+        var book = {};
+        book.action = "newinbox";
+        book.id = id;
+        book.bid = bid;
+        book.name = name;
+        book.price = price;
+        book.isbn = isbn;
+        book.bookbox = bookbox;
+        book.bookfind = bookfind;
+
+        api.openWin({
+            name: 'bookinfo',
+            url: '../bookinfo/bookinfo.html',
+            pageParam: book,
+            bounces: false,
+            opaque: false
+        });
+    }
+
+    function booklist() {
+        //alert("选择的学校是"+school.name);
+        api.showProgress({
+            style: 'default',
+            animationType: 'fade',
+            title: '加载中',
+            text: '请稍后',
+            modal: false
+        });
+        query.createQuery(function(ret, err) {
+            if (ret && ret.qid) {
+                var queryId = ret.qid;
+
+                query.whereStartWith({
+                    qid: queryId,
+                    column: 'bid',
+                    value: userinfo.schoolid
+                });
+                query.whereEqual({
+                    qid: queryId,
+                    column: "inbox",
+                    value: true
+                });
+
+                query.limit({
+                    qid: queryId,
+                    value: 100
+                });
+
+                query.desc({
+                    qid: queryId,
+                    column: 'updatedAt'
+                });
+
+                query.justFields({
+                    qid: queryId,
+                    value: ['id', 'bid', 'name', 'price', 'isbn', 'bookbox', 'bookfind']
+                });
+
+                model.findAll({
+                    class: "book",
+                    qid: queryId
+                }, function(data, err) {
+                    if (data) {
+                        console.log(JSON.stringify(data.length));
+
+                        // api.execScript({
+                        //     name: 'root',
+                        //     frameName: 'main',
+                        //     script: 'fnchangenewbookNum('+data.length+');'
+                        // });
+                        // $api.setStorage('NewbookNum', data.length);
+
+                        var templateText = $api.byId('booklist_tmp').innerHTML;
+                        var dot = doT.template(templateText);
+                        $api.byId("booklist_area").innerHTML = dot(data);
+
+                        //$api.byId('list').innerHTML = dot(res);
+                        api.hideProgress();
+                    } else {
+                        //alert(JSON.stringify(error));
+                        api.hideProgress();
+                    }
+                });
+            }
+        });
+    }
+
+    var query;
+    var model;
+
+    apiready = function() {
+
+        query = api.require('query');
+        model = api.require('model');
+
+        get_base_info();
+        if (logined == 'true') {
+            $api.byId('newbooklist').innerHTML = userinfo.school + '最新入柜书籍列表';
+            //account = userinfo.name;
+            //school = userinfo.schoolid;
+            booklist();
+        }
+    };
+</script>
+
+</html>

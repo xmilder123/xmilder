@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <!--     <link rel="stylesheet" type="text/css" href="../css/api.css" /> -->
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+        .header {
+            padding: 2.5rem 0.5rem 2rem 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="aui-bar aui-bar-nav">
+        <div class="aui-title">校园传书</div>
+        <a class="aui-pull-right aui-btn">
+            <span class="aui-iconfont aui-icon-question"></span>
+        </a>
+        <div class="aui-tips">
+            <i class="aui-iconfont aui-icon-location"></i>
+            <div id="school" class="aui-pull-left aui-btn" id="school" tapmode onclick="openSchoolist()">淮阴工学院<span class="aui-iconfont aui-icon-down"></span></div>
+            <i class="aui-iconfont aui-icon-info"></i>
+            <div class="aui-tips-title aui-ellipsis-1 aui-text-info">你有新的消息</div>
+        </div>
+    </header>
+    <div id="main">
+    </div>
+    <footer class="aui-bar aui-bar-tab" id="footer">
+        <div class="aui-bar-tab-item aui-active" tapmode onclick="openframeinstance('main_frame',0)">
+            <i class="iconfont icon-shouye"></i>
+            <div class="aui-bar-tab-label">首页</div>
+        </div>
+        <div class="aui-bar-tab-item" tapmode onclick="openframeinstance('second_frame',1)">
+          <!--  <div class="aui-badge" id="seconde_number">15</div>-->
+            <i class="iconfont icon-wodeshujia"></i>
+            <div class="aui-bar-tab-label">书架</div>
+        </div>
+        <div class="aui-bar-tab-item" tapmode onclick="openframeinstance('third_frame',2)">
+          <!--  <div class="aui-badge">45</div>-->
+            <i class="iconfont icon-haoyou"></i>
+            <div class="aui-bar-tab-label">师兄</div>
+        </div>
+        <div class="aui-bar-tab-item" tapmode onclick="openframeinstance('my_frame',3)">
+            <div class="aui-dot"></div>
+            <i class="iconfont icon-ren"></i>
+            <div class="aui-bar-tab-label">我的</div>
+        </div>
+    </footer>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/account.js"></script>
+<script type="text/javascript">
+    var g_headerPos;
+    var g_frameHeight;
+
+    // function openSearch() {
+    //     api.openWin({
+    //         name: 'search',
+    //         url: '../html/search.html',
+    //         bounces: false,
+    //         delay: 200
+    //     });
+    // }
+
+    function openframeinstance(frame, index) {
+
+        api.openFrame({
+            name: frame,
+            url: frame + '.html',
+            rect: {
+                x: 0,
+                y: g_headerPos,
+                w: 'auto',
+                h: g_frameHeight
+            },
+            pageParam: {
+                Y: g_headerPos,
+                H: g_frameHeight
+            },
+            // bounces: isBounce,
+            bounces: false,
+            vScrollBarEnabled: false,
+            hScrollBarEnabled: false,
+            delay: 200
+        });
+        fnSetItemSelected(index);
+        //alert(index + 'qqq');
+        //赋给窗口的值index有效
+    }
+
+    var footer = $api.byId('footer');
+    var items = $api.domAll(footer, '.aui-bar-tab-item');
+
+    function fnSetItemSelected(index_) {
+        for (var i = 0; i < items.length; i++) {
+            if (index_ == i) {
+                $api.addCls(items[i], 'aui-active');
+            } else {
+                $api.removeCls(items[i], 'aui-active');
+            }
+        }
+    }
+
+    function openSchoolist() {
+        get_school(function(ret_dat) {
+            $api.byId('school').innerHTML = ret_dat + '<span class="aui-iconfont aui-icon-down"></span>';
+        });
+    }
+
+    var model;
+
+    apiready = function() {
+        api.parseTapmode();
+        // UICityList = api.require('UICityList');
+        model = api.require('model');
+        // model.config({
+        //     appKey: appKey
+        // });
+
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+
+        var headerPos = $api.offset(header);
+        var main = $api.byId('main');
+        var mainPos = $api.offset(main);
+
+        var footer = $api.byId('footer');
+        var footerPos = $api.offset(footer);
+
+        g_headerPos = headerPos.h;
+        g_frameHeight = api.frameHeight - headerPos.h - footerPos.h;
+
+        api.openFrame({
+            name: 'main',
+            url: 'main_frame.html',
+            bounces: true,
+            rect: {
+                x: 0,
+                y: headerPos.h,
+                w: 'auto',
+                h: g_frameHeight
+            },
+            pageParam: {
+                Y: g_headerPos,
+                H: g_frameHeight
+            }
+        });
+
+        get_base_info();
+        if (logined == 'true') {
+            $api.byId('school').innerHTML = schoolinfo.name + '<span class="aui-iconfont aui-icon-down"></span>';
+        } else {
+            alert('点击了返回键回到上一页');
+        }
+    };
+
+    function fnchangecaseNum(number_) {
+        var seconde_number = $api.byId('seconde_number');
+        seconde_number.innerHTML = number_;
+    }
+</script>
+
+</html>

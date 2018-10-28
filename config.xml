@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widget id="A6933358370367" version="0.1.8"> 
+  <name>校园传书</name>  
+  <description>基于智能流通书柜的教材循环利用APP端</description>  
+  <author email="xmilder@163.com" href="xmilder@163.com">xujun</author>  
+  <content src="index.html"/>  
+  <preference name="pageBounce" value="false"/>  
+  <preference name="appBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="windowBackground" value="rgba(0,0,0,0.0)"/>  
+  <preference name="frameBackgroundColor" value="rgba(0,0,0,0.0)"/>  
+  <preference name="hScrollBarEnabled" value="true"/>  
+  <preference name="vScrollBarEnabled" value="true"/>  
+  <preference name="autoLaunch" value="true"/>  
+  <preference name="fullScreen" value="false"/>  
+  <preference name="autoUpdate" value="true"/>  
+  <preference name="smartUpdate" value="true"/>  
+  <preference name="debug" value="false"/>  
+  <preference name="statusBarAppearance" value="true"/>  
+  <permission name="readPhoneState"/>  
+  <permission name="camera"/>  
+  <permission name="record"/>  
+  <permission name="location"/>  
+  <permission name="fileSystem"/>  
+  <permission name="internet"/>  
+  <permission name="bootCompleted"/>  
+  <permission name="hardware"/>  
+  <permission name="backgroundMode"/>  
+  <access origin="*"/>  
+  <feature name="aMap"> 
+    <param name="android_api_key" value="e97a009ca10b9869208f1529b0ca9632"/>  
+    <param name="ios_api_key" value="1b506388ba96870938dc8d9ca23afff7"/> 
+  </feature>  
+  <feature name="aMapLBS"> 
+    <param name="android_api_key" value="e97a009ca10b9869208f1529b0ca9632"/>  
+    <param name="ios_api_key" value="1b506388ba96870938dc8d9ca23afff7"/> 
+  </feature>  
+  <feature name="QQPlus"> 
+    <param name="urlScheme" value="tencent1106033875"/>  
+    <param name="apiKey" value="iB0Akwrx5CPeCTCD"/> 
+  </feature>  
+<!--  <feature name="umengTJ"> 
+    <param name="android_appkey" value="5a4c64948f4a9d477200030b"/>  
+    <param name="android_channel" value="apicloud"/> 
+  </feature>  -->
+  <feature name="smsVerify"> 
+    <param name="android_app_key" value="21ad4e2908232"/>  
+    <param name="android_app_secret" value="39cd64ba9038dc2edd6e8f1efa99f9cc"/> 
+  </feature> 
+</widget>
